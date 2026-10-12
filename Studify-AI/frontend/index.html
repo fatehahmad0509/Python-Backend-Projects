@@ -1,0 +1,3753 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Studify - Yapay zeka destekli akıllı ders çalışma ve verimlilik asistanı">
+    <meta name="theme-color" content="#09090E">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="studify-version" content="3">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script>
+      var v = document.querySelector('meta[name="studify-version"]').getAttribute('content');
+      if (window.location.search.indexOf('v=' + v) === -1) {
+        window.location.replace(window.location.pathname + '?v=' + v);
+      }
+    </script>
+    <title>Studify — AI Ders Asistanı</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+<style>
+/* ============================================
+   STUDIFY — COSMIC DARK THEME CSS
+   Kozmik koyu tema, cyberpunk esintili tasarım
+   ============================================ */
+
+/* --- CSS Değişkenleri (Design Tokens) --- */
+:root {
+    /* Ana Renkler */
+    --bg-primary: #09090E;
+    --bg-secondary: #0F0F24;
+    --bg-card: #13132B;
+    --bg-card-hover: #1A1A3E;
+    --bg-input: #0D0D20;
+    --bg-surface: #16163A;
+
+    /* Vurgu Renkleri */
+    --accent-purple: #7C4DFF;
+    --accent-purple-hover: #9C7CFF;
+    --accent-purple-glow: rgba(124, 77, 255, 0.25);
+    --accent-purple-soft: rgba(124, 77, 255, 0.12);
+    --accent-cyan: #00E5FF;
+    --accent-cyan-glow: rgba(0, 229, 255, 0.2);
+    --accent-gold: #FFD740;
+    --accent-green: #69F0AE;
+    --accent-red: #FF5252;
+    --accent-orange: #FFAB40;
+
+    /* Metin Renkleri */
+    --text-primary: #EEEEF6;
+    --text-secondary: #9E9EB8;
+    --text-muted: #6B6B8D;
+    --text-accent: #B39DFF;
+
+    /* Kenarlık */
+    --border-color: rgba(124, 77, 255, 0.15);
+    --border-glow: rgba(124, 77, 255, 0.3);
+
+    /* Boyutlar */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 50%;
+
+    /* Gölgeler */
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3), 0 0 20px rgba(124, 77, 255, 0.08);
+    --shadow-glow: 0 0 20px rgba(124, 77, 255, 0.15);
+    --shadow-button: 0 4px 16px rgba(124, 77, 255, 0.3);
+
+    /* Geçişler */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+    --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Navigasyon yüksekliği */
+    --nav-height: 72px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar stili */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 4px; }
+
+/* ============================================
+   SPLASH SCREEN — NeonDB Cold Start Çözümü
+   ============================================ */
+#splash-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+#splash-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.splash-logo {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 24px;
+    letter-spacing: -1px;
+}
+
+.splash-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 40px;
+}
+
+/* Splash yükleme animasyonu - kozmik halka */
+.splash-loader {
+    width: 56px;
+    height: 56px;
+    position: relative;
+}
+
+.splash-loader::before,
+.splash-loader::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid transparent;
+}
+
+.splash-loader::before {
+    border-top-color: var(--accent-purple);
+    animation: splash-spin 1s linear infinite;
+}
+
+.splash-loader::after {
+    border-bottom-color: var(--accent-cyan);
+    animation: splash-spin 1.5s linear infinite reverse;
+    inset: 6px;
+}
+
+@keyframes splash-spin {
+    to { transform: rotate(360deg); }
+}
+
+.splash-status {
+    margin-top: 24px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* ============================================
+   AUTH (GİRİŞ / KAYIT) EKRANI
+   ============================================ */
+#auth-screen {
+    display: none;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 24px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#auth-screen.active {
+    display: flex;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-brand {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.auth-brand h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+}
+
+.auth-brand p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: 32px 24px;
+    box-shadow: var(--shadow-card);
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-input);
+    border-radius: var(--radius-md);
+    padding: 4px;
+    margin-bottom: 28px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.auth-tab.active {
+    background: var(--accent-purple);
+    color: #fff;
+}
+
+.auth-form {
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.auth-form.active {
+    display: flex;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-purple);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.form-input {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+.form-input::placeholder {
+    color: var(--text-muted);
+}
+
+.form-input:focus {
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 3px var(--accent-purple-soft);
+}
+
+.auth-error {
+    display: none;
+    background: rgba(255, 82, 82, 0.1);
+    border: 1px solid rgba(255, 82, 82, 0.3);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    color: var(--accent-red);
+    font-size: 0.85rem;
+}
+
+.auth-error.visible {
+    display: block;
+}
+
+/* ============================================
+   ORTAK BUTON STİLLERİ
+   ============================================ */
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-purple), #6930C3);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 14px 24px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    box-shadow: var(--shadow-button);
+    position: relative;
+    overflow: hidden;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(124, 77, 255, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Buton parıltı animasyonu */
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.05),
+        transparent
+    );
+    transform: rotate(45deg);
+    animation: btn-shimmer 3s infinite;
+}
+
+@keyframes btn-shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+.btn-secondary {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-secondary:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent-purple);
+}
+
+/* ============================================
+   ANA UYGULAMA LAYOUT
+   ============================================ */
+#app-container {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+#app-container.active {
+    display: flex;
+}
+
+.app-content {
+    flex: 1;
+    padding: 56px 16px calc(var(--nav-height) + var(--safe-bottom) + 16px);
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Sayfa geçiş animasyonu */
+.page {
+    display: none;
+    animation: page-enter 0.3s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes page-enter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   ALT NAVİGASYON BARI
+   ============================================ */
+/* Üst Bar Tasarımı */
+.top-xp-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 16px;
+    z-index: 999;
+}
+
+.top-bar-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.top-bar-badge .badge-icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.top-bar-badge .badge-value {
+    color: var(--text-primary);
+}
+
+.top-bar-badge.streak-badge .badge-icon { color: #FF6B00; }
+.top-bar-badge.xp-badge .badge-icon { color: #FFD740; }
+.top-bar-badge.level-badge { background: rgba(124, 77, 255, 0.2); border-color: rgba(124, 77, 255, 0.3); }
+.top-bar-badge.level-badge .badge-value { color: var(--accent-purple); }
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(var(--nav-height) + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+    background: rgba(9, 9, 14, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-top: 8px;
+    z-index: 1000;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 6px 12px;
+    min-width: 56px;
+    min-height: 48px;
+    transition: var(--transition-fast);
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+}
+
+.nav-item .nav-icon {
+    font-size: 24px;
+    transition: var(--transition-fast);
+}
+
+.nav-item.active {
+    color: var(--accent-purple);
+}
+
+.nav-item.active .nav-icon-wrap {
+    background: var(--accent-purple);
+    border-radius: 16px;
+    padding: 6px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-item.active .nav-icon {
+    color: #fff;
+}
+
+.nav-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-normal);
+}
+
+/* ============================================
+   KARTLAR / CARD BİLEŞENLERİ
+   ============================================ */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-normal);
+}
+
+.card:hover {
+    border-color: var(--border-glow);
+}
+
+.card-elevated {
+    transition: var(--transition-normal);
+}
+
+.card-elevated:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-glow), var(--shadow-card);
+}
+
+/* ============================================
+   ANA SAYFA (DASHBOARD)
+   ============================================ */
+
+/* Hoş geldin kartı */
+.welcome-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-card);
+}
+
+.welcome-info h2 {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.welcome-info h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.welcome-plan {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--accent-gold);
+}
+
+.welcome-plan .material-icons-round {
+    font-size: 16px;
+}
+
+.welcome-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-full);
+    background: var(--accent-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+/* Pomodoro Kartı */
+.pomodoro-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    text-align: center;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-card);
+}
+
+.pomodoro-card h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.pomodoro-card .pomodoro-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-bottom: 20px;
+}
+
+.pomodoro-timer {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+    font-variant-numeric: tabular-nums;
+}
+
+.pomodoro-btn {
+    width: 100%;
+}
+
+/* Yapay Zeka Araçları */
+.section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-title .sparkle {
+    font-size: 1.2rem;
+}
+
+.ai-tools-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.ai-tool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 140px;
+}
+
+.ai-tool-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-purple);
+    box-shadow: var(--shadow-glow);
+}
+
+.ai-tool-card:active {
+    transform: translateY(-2px);
+}
+
+.ai-tool-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background: var(--accent-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 20px;
+}
+
+.ai-tool-card h4 {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.ai-tool-card p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* Seans Tarihçesi */
+.session-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+    transition: var(--transition-fast);
+}
+
+.session-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: var(--accent-purple-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-purple);
+    flex-shrink: 0;
+}
+
+.session-info {
+    flex: 1;
+}
+
+.session-info h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.session-info p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.session-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-green);
+    text-align: right;
+}
+
+/* ============================================
+   FLASHCARD (KARTLAR) SAYFASI
+   ============================================ */
+.page-header {
+    margin-bottom: 20px;
+}
+
+.page-header h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.page-header p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* Flashcard Üretici Kartı */
+.generator-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-card);
+}
+
+.generator-tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.gen-tab-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-purple);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.gen-tab-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-fast);
+}
+
+.gen-tab-btn:hover {
+    border-color: var(--accent-purple);
+    background: var(--accent-purple-soft);
+}
+
+.notes-textarea {
+    width: 100%;
+    min-height: 120px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    outline: none;
+    transition: var(--transition-fast);
+    margin-bottom: 14px;
+    line-height: 1.6;
+}
+
+.notes-textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.notes-textarea:focus {
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 3px var(--accent-purple-soft);
+}
+
+/* OCR Dosya yükleme alanı */
+.ocr-upload-area {
+    display: none;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 14px;
+    transition: var(--transition-fast);
+    cursor: pointer;
+}
+
+.ocr-upload-area.active {
+    display: block;
+}
+
+.ocr-upload-area:hover,
+.ocr-upload-area.dragover {
+    border-color: var(--accent-purple);
+    background: var(--accent-purple-soft);
+}
+
+.ocr-upload-area .material-icons-round {
+    font-size: 40px;
+    color: var(--accent-purple);
+    margin-bottom: 8px;
+}
+
+.ocr-upload-area p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.ocr-upload-area .file-name {
+    color: var(--accent-green);
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.generate-btn {
+    width: 100%;
+}
+
+/* Kayıtlı Kartlar Listesi */
+.saved-cards-header {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.flashcard-list-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.flashcard-list-item:hover {
+    border-color: var(--accent-purple);
+}
+
+.flashcard-list-item .fc-text {
+    flex: 1;
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.flashcard-list-item .fc-check {
+    color: var(--accent-purple);
+    font-size: 22px;
+}
+
+/* 3D Flip Flashcard */
+.flip-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.flip-overlay.active {
+    display: flex;
+}
+
+.flip-container {
+    width: 100%;
+    max-width: 340px;
+    height: 240px;
+    perspective: 1200px;
+    cursor: pointer;
+    margin-bottom: 24px;
+}
+
+.flip-card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flip-card.flipped {
+    transform: rotateY(180deg);
+}
+
+.flip-front, .flip-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.flip-front {
+    background: linear-gradient(135deg, var(--accent-purple), #5C2FBF);
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(124, 77, 255, 0.3);
+}
+
+.flip-front .flip-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.7;
+    margin-bottom: 12px;
+}
+
+.flip-back {
+    background: var(--bg-card);
+    border: 1px solid var(--accent-purple);
+    color: var(--text-primary);
+    transform: rotateY(180deg);
+}
+
+.flip-back .flip-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent-cyan);
+    margin-bottom: 12px;
+}
+
+.flip-nav {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.flip-nav button {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.flip-nav button:hover {
+    background: var(--accent-purple);
+    border-color: var(--accent-purple);
+}
+
+.flip-counter {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-width: 60px;
+    text-align: center;
+}
+
+.flip-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* ============================================
+   SINAV (QUIZ) SAYFASI
+   ============================================ */
+.quiz-form-group {
+    margin-bottom: 16px;
+}
+
+.quiz-form-group .form-label {
+    margin-bottom: 8px;
+    display: block;
+}
+
+.quiz-questions-container {
+    display: none;
+}
+
+.quiz-questions-container.active {
+    display: block;
+}
+
+.quiz-question-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.quiz-question-num {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-purple);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.quiz-question-text {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quiz-option {
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quiz-option:hover {
+    border-color: var(--accent-purple);
+    background: var(--accent-purple-soft);
+}
+
+.quiz-option.selected {
+    border-color: var(--accent-purple);
+    background: var(--accent-purple-soft);
+}
+
+.quiz-option.correct {
+    border-color: var(--accent-green);
+    background: rgba(105, 240, 174, 0.1);
+    color: var(--accent-green);
+}
+
+.quiz-option.wrong {
+    border-color: var(--accent-red);
+    background: rgba(255, 82, 82, 0.1);
+    color: var(--accent-red);
+}
+
+.quiz-option-letter {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    background: var(--bg-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.quiz-explanation {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(0, 229, 255, 0.05);
+    border: 1px solid rgba(0, 229, 255, 0.15);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--accent-cyan);
+    line-height: 1.5;
+}
+
+.quiz-explanation.visible {
+    display: block;
+}
+
+/* Quiz sonuç */
+.quiz-result {
+    display: none;
+    text-align: center;
+    padding: 32px 20px;
+}
+
+.quiz-result.active {
+    display: block;
+}
+
+.quiz-score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: var(--radius-full);
+    background: var(--accent-purple-soft);
+    border: 3px solid var(--accent-purple);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.quiz-score-circle .score-num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent-purple);
+}
+
+.quiz-score-circle .score-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   DERS KOÇU (AI COACH) — CHAT ARAYÜZÜ
+   ============================================ */
+#page-coach {
+    display: none;
+    flex-direction: column;
+    height: calc(100dvh - 56px - var(--nav-height) - var(--safe-bottom) - 16px);
+    overflow: hidden;
+}
+
+#page-coach.active {
+    display: flex;
+}
+
+.coach-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 12px;
+    flex-shrink: 0;
+}
+
+.coach-header h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.coach-header p {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.coach-clear-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+}
+
+.coach-clear-btn:hover {
+    color: var(--accent-red);
+    background: rgba(255, 82, 82, 0.1);
+}
+
+.chat-messages {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.chat-bubble {
+    max-width: 88%;
+    padding: 14px 18px;
+    border-radius: var(--radius-lg);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    animation: bubble-enter 0.3s ease;
+}
+
+@keyframes bubble-enter {
+    from { opacity: 0; transform: translateY(8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.chat-bubble.user {
+    background: var(--accent-purple);
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.chat-bubble.ai {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+/* Chat içindeki markdown stilleri */
+.chat-bubble.ai h3 {
+    font-size: 1rem;
+    margin: 12px 0 6px;
+    color: var(--accent-purple);
+}
+
+.chat-bubble.ai strong {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.chat-bubble.ai ul, .chat-bubble.ai ol {
+    padding-left: 20px;
+    margin: 6px 0;
+}
+
+.chat-bubble.ai li {
+    margin-bottom: 4px;
+}
+
+.chat-bubble.ai code {
+    background: var(--bg-input);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+/* Chat yükleniyor animasyonu */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 14px 18px;
+    align-self: flex-start;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: typing-bounce 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-8px); }
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+    padding: 12px 0;
+    flex-shrink: 0;
+}
+
+.chat-input {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+.chat-input::placeholder {
+    color: var(--text-muted);
+}
+
+.chat-input:focus {
+    border-color: var(--accent-purple);
+}
+
+.chat-send-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: var(--accent-purple);
+    border: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.chat-send-btn:hover {
+    background: var(--accent-purple-hover);
+}
+
+.chat-send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   SORU ÇÖZÜCÜ ALT EKRANI
+   ============================================ */
+.sub-page {
+    display: none;
+    animation: page-enter 0.3s ease;
+}
+
+.sub-page.active {
+    display: block;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 16px;
+    padding: 8px 0;
+    transition: var(--transition-fast);
+}
+
+.back-btn:hover {
+    color: var(--accent-purple);
+}
+
+/* Sürükle-bırak yükleme alanı */
+.upload-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    margin-bottom: 20px;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+    border-color: var(--accent-purple);
+    background: var(--accent-purple-soft);
+}
+
+.upload-zone .material-icons-round {
+    font-size: 48px;
+    color: var(--accent-purple);
+    margin-bottom: 12px;
+}
+
+.upload-zone h3 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+}
+
+.upload-zone p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.upload-preview {
+    display: none;
+    margin-bottom: 20px;
+}
+
+.upload-preview.active {
+    display: block;
+}
+
+.upload-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    object-fit: contain;
+}
+
+.solution-output {
+    display: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    line-height: 1.7;
+    font-size: 0.92rem;
+}
+
+.solution-output.active {
+    display: block;
+}
+
+.solution-output h3 {
+    color: var(--accent-purple);
+    font-size: 1rem;
+    margin: 14px 0 8px;
+}
+
+.solution-output strong {
+    color: var(--text-primary);
+}
+
+.solution-output ul, .solution-output ol {
+    padding-left: 20px;
+}
+
+/* ============================================
+   KONU ÖZETLEYİCİ ALT EKRANI
+   ============================================ */
+.summary-output {
+    display: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    line-height: 1.7;
+    font-size: 0.92rem;
+}
+
+.summary-output.active {
+    display: block;
+}
+
+.summary-output h2 {
+    font-size: 1.1rem;
+    color: var(--accent-purple);
+    margin-bottom: 12px;
+}
+
+.summary-output h3 {
+    font-size: 1rem;
+    color: var(--accent-cyan);
+    margin: 14px 0 8px;
+}
+
+/* ============================================
+   PROFİL SAYFASI
+   ============================================ */
+.profile-header-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 24px 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-card);
+}
+
+.profile-avatar-lg {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 auto 14px;
+}
+
+.profile-header-card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.profile-header-card .profile-email {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.plan-badge.free {
+    background: rgba(255, 215, 64, 0.1);
+    color: var(--accent-gold);
+    border: 1px solid rgba(255, 215, 64, 0.3);
+}
+
+.plan-badge.plus {
+    background: rgba(124, 77, 255, 0.15);
+    color: var(--accent-purple);
+    border: 1px solid rgba(124, 77, 255, 0.3);
+}
+
+/* Kota kartları */
+.quota-section h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.quota-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.quota-label {
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+.quota-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quota-bar-bg {
+    width: 80px;
+    height: 6px;
+    background: var(--bg-input);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.quota-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent-purple);
+    transition: width 0.4s ease;
+}
+
+.quota-bar-fill.warning {
+    background: var(--accent-orange);
+}
+
+.quota-bar-fill.full {
+    background: var(--accent-red);
+}
+
+.quota-count {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Gamification: XP, Level, Streak, Leaderboard */
+.xp-stats-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(124, 77, 255, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 18px 16px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.xp-stats-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 50%, rgba(124, 77, 255, 0.06), transparent 60%);
+    pointer-events: none;
+}
+
+.xp-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.xp-level-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124, 77, 255, 0.15);
+    border: 1px solid rgba(124, 77, 255, 0.25);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.xp-streak-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 107, 0, 0.15);
+    border: 1px solid rgba(255, 107, 0, 0.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #FF6B00;
+}
+
+.xp-streak-badge .streak-fire {
+    font-size: 1.1rem;
+}
+
+.xp-bar-section {
+    margin-bottom: 6px;
+}
+
+.xp-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.xp-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-input);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.xp-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+    transition: width 0.6s ease;
+}
+
+.xp-total-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+/* Leaderboard */
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    transition: all var(--transition-fast);
+}
+
+.leaderboard-item:last-child {
+    margin-bottom: 0;
+}
+
+.leaderboard-item.current-user {
+    border-color: var(--accent-purple);
+    background: rgba(124, 77, 255, 0.08);
+}
+
+.leaderboard-rank {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.leaderboard-rank.gold { background: rgba(255, 215, 0, 0.2); color: #FFD740; }
+.leaderboard-rank.silver { background: rgba(192, 192, 192, 0.2); color: #C0C0C0; }
+.leaderboard-rank.bronze { background: rgba(205, 127, 50, 0.2); color: #CD7F32; }
+
+.leaderboard-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.leaderboard-xp {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.leaderboard-level {
+    font-size: 0.75rem;
+    color: var(--accent-purple);
+    font-weight: 600;
+    background: rgba(124, 77, 255, 0.1);
+    padding: 3px 8px;
+    border-radius: 10px;
+}
+
+.leaderboard-user-rank {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 8px 0;
+}
+
+/* XP toast notification */
+.xp-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, rgba(124, 77, 255, 0.95), rgba(0, 229, 255, 0.9));
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 32px rgba(124, 77, 255, 0.4);
+    z-index: 9999;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 300px;
+    backdrop-filter: blur(10px);
+}
+
+.xp-toast.active {
+    transform: translateX(0);
+}
+
+.xp-toast-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.xp-toast-icon {
+    font-size: 1.5rem;
+}
+
+.xp-toast-text {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.xp-toast-sub {
+    font-size: 0.75rem;
+    opacity: 0.85;
+    margin-top: 2px;
+}
+
+.xp-toast-levelup {
+    color: #FFD740;
+    font-weight: 700;
+}
+
+.logout-btn {
+    width: 100%;
+    margin-top: 20px;
+    background: rgba(255, 82, 82, 0.1);
+    border: 1px solid rgba(255, 82, 82, 0.3);
+    color: var(--accent-red);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.logout-btn:hover {
+    background: rgba(255, 82, 82, 0.2);
+}
+
+/* ============================================
+   MODAL (KOTA UYARI DİALOGU)
+   ============================================ */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 5000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: 32px 24px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.5);
+    animation: modal-enter 0.3s ease;
+}
+
+@keyframes modal-enter {
+    from { opacity: 0; transform: scale(0.92) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    background: var(--accent-purple-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+
+.modal-icon .material-icons-round {
+    font-size: 28px;
+    color: var(--accent-purple);
+}
+
+.modal-box h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.modal-box p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.modal-close-btn {
+    width: 100%;
+}
+
+/* ============================================
+   LOADING SPINNER (Yükleniyor)
+   ============================================ */
+.loading-spinner {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.loading-spinner.active {
+    display: flex;
+}
+
+.spinner-icon {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-purple);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   RESPONSİVE TASARIM
+   ============================================ */
+@media (min-width: 768px) {
+    .app-content {
+        padding: 64px 24px calc(var(--nav-height) + var(--safe-bottom) + 24px);
+    }
+
+    .pomodoro-timer {
+        font-size: 5rem;
+    }
+
+    .welcome-card {
+        padding: 24px;
+    }
+
+    .ai-tools-grid {
+        gap: 16px;
+    }
+}
+
+/* Küçük ekranlar için */
+@media (max-width: 360px) {
+    .pomodoro-timer {
+        font-size: 3rem;
+    }
+
+    .nav-item {
+        font-size: 0.6rem;
+        min-width: 48px;
+        padding: 6px 8px;
+    }
+
+    .nav-item.active .nav-icon-wrap {
+        padding: 6px 14px;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     SPLASH SCREEN — NeonDB Cold Start Çözümü
+     Veritabanı yanıt verene kadar görünür kalır
+     ============================================ -->
+<div id="splash-screen">
+    <div class="splash-logo">Studify</div>
+    <p class="splash-subtitle">Yapay Zeka Destekli Ders Asistanın</p>
+    <div class="splash-loader"></div>
+    <p class="splash-status" id="splash-status">Bağlanıyor...</p>
+</div>
+
+<!-- ============================================
+     AUTH (GİRİŞ / KAYIT) EKRANI
+     ============================================ -->
+<div id="auth-screen">
+    <div class="auth-container">
+        <div class="auth-brand">
+            <h1>Studify</h1>
+            <p>Yapay zeka ile ders çalışmanın yeni yolu</p>
+        </div>
+
+        <div class="auth-card">
+            <!-- Giriş / Kayıt Sekmeleri -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-auth-tab="login" id="auth-tab-login">Giriş Yap</button>
+                <button class="auth-tab" data-auth-tab="register" id="auth-tab-register">Kayıt Ol</button>
+            </div>
+
+            <!-- Hata Mesajı -->
+            <div class="auth-error" id="auth-error"></div>
+
+            <!-- Giriş Formu -->
+            <form class="auth-form active" id="login-form">
+                <div class="form-group">
+                    <label class="form-label">E-posta</label>
+                    <input type="email" class="form-input" id="login-email" placeholder="ornek@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Şifre</label>
+                    <input type="password" class="form-input" id="login-password" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary" id="login-btn">
+                    <span>Giriş Yap</span>
+                </button>
+            </form>
+
+            <!-- Kayıt Formu -->
+            <form class="auth-form" id="register-form">
+                <div class="form-group">
+                    <label class="form-label">Ad Soyad</label>
+                    <input type="text" class="form-input" id="register-name" placeholder="Fateh Ahmad" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-posta</label>
+                    <input type="email" class="form-input" id="register-email" placeholder="ornek@email.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Şifre</label>
+                    <input type="password" class="form-input" id="register-password" placeholder="En az 6 karakter" required minlength="6" autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-primary" id="register-btn">
+                    <span>Kayıt Ol</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     ANA UYGULAMA KAPSAYICISI
+     ============================================ -->
+<div id="app-container">
+    <div class="app-content">
+
+        <!-- ====== ANA SAYFA (DASHBOARD) ====== -->
+        <div class="page active" id="page-home">
+            <!-- Hoş geldin kartı -->
+            <div class="welcome-card">
+                <div class="welcome-info">
+                    <h2>Tekrar hoş geldin,</h2>
+                    <h1 id="welcome-name">Kullanıcı</h1>
+                    <div class="welcome-plan">
+                        <span class="material-icons-round">star</span>
+                        <span id="welcome-plan-text">Plan: STANDART ÜCRETSİZ</span>
+                    </div>
+                </div>
+                <div class="welcome-avatar" id="welcome-avatar">KU</div>
+            </div>
+
+            <!-- Pomodoro Zamanlayıcı -->
+            <div class="pomodoro-card">
+                <h3>Pomodoro Odaklanma Saati</h3>
+                <p class="pomodoro-subtitle">Bu seansı tamamlayarak istatistiklerini geliştir</p>
+                <div class="pomodoro-timer" id="pomodoro-display">25:00</div>
+                <button class="btn-primary pomodoro-btn" id="pomodoro-btn">Derse Başla (Pomodoro)</button>
+            </div>
+
+            <!-- Yapay Zeka Araçları -->
+            <h3 class="section-title"><span class="sparkle">✨</span> Yapay Zeka Öğrenim Araçları (Yeni)</h3>
+            <div class="ai-tools-grid">
+                <div class="ai-tool-card" id="tool-solver" role="button" tabindex="0">
+                    <div class="ai-tool-icon">
+                        <span class="material-icons-round">edit</span>
+                    </div>
+                    <h4>Soru Çözücü</h4>
+                    <p>Resmini çek, yapay zeka adım adım çözsün.</p>
+                </div>
+                <div class="ai-tool-card" id="tool-summarizer" role="button" tabindex="0">
+                    <div class="ai-tool-icon">
+                        <span class="material-icons-round">play_arrow</span>
+                    </div>
+                    <h4>Konu Özetleyici</h4>
+                    <p>Video linki ya da ders metnini anında özetle.</p>
+                </div>
+            </div>
+
+            <!-- Seans Tarihçesi -->
+            <h3 class="section-title">Seans Tarihçesi ve Özet</h3>
+            <div id="session-history">
+                <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 20px 0;">Henüz bir çalışma seansın yok. Pomodoro ile başla!</p>
+            </div>
+        </div>
+
+        <!-- ====== SORU ÇÖZÜCÜ ALT EKRANI ====== -->
+        <div class="sub-page" id="page-solver">
+            <button class="back-btn" id="solver-back-btn">
+                <span class="material-icons-round">arrow_back</span>
+                Ana Sayfaya Dön
+            </button>
+            <div class="page-header">
+                <h1>Fotoğraftan Soru Çözücü</h1>
+                <p>Sorunun fotoğrafını yükle, yapay zeka adım adım çözsün.</p>
+            </div>
+
+            <!-- Yükleme Alanı -->
+            <div class="upload-zone" id="solver-upload-zone">
+                <span class="material-icons-round">add_a_photo</span>
+                <h3>Fotoğraf Yükle</h3>
+                <p>Sürükle-bırak veya dokunarak seç</p>
+            </div>
+            <input type="file" id="solver-file-input" accept="image/*" capture="environment" style="display:none">
+
+            <!-- Yükleme Önizlemesi -->
+            <div class="upload-preview" id="solver-preview">
+                <img id="solver-preview-img" alt="Yüklenen soru">
+            </div>
+
+            <button class="btn-primary" id="solver-submit-btn" style="width:100%; margin-bottom: 20px; display:none;">
+                <span class="material-icons-round">auto_awesome</span>
+                <span>Yapay Zeka ile Çöz</span>
+            </button>
+
+            <div class="loading-spinner" id="solver-loading">
+                <div class="spinner-icon"></div>
+                <span>Yapay zeka soruyu çözüyor...</span>
+            </div>
+
+            <div class="solution-output" id="solver-output"></div>
+
+            <div class="retry-container" id="solver-retry-container" style="display:none; margin-top: 20px;">
+                <button class="btn-primary" id="solver-retry-btn" style="width:100%;">
+                    <span class="material-icons-round">add_a_photo</span>
+                    <span>Yeni Soru Çözdür</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ====== KONU ÖZETLEYİCİ ALT EKRANI ====== -->
+        <div class="sub-page" id="page-summarizer">
+            <button class="back-btn" id="summarizer-back-btn">
+                <span class="material-icons-round">arrow_back</span>
+                Ana Sayfaya Dön
+            </button>
+            <div class="page-header">
+                <h1>Konu Özetleyici</h1>
+                <p>YouTube linki veya ders metnini gir, yapay zeka özetlesin.</p>
+            </div>
+
+            <div class="card" style="margin-bottom: 16px;">
+                <div class="generator-tabs">
+                    <span class="gen-tab-label">İÇERİK TİPİ</span>
+                </div>
+                <div class="auth-tabs" style="margin-bottom: 14px;">
+                    <button class="auth-tab active" data-summary-tab="url" id="summary-tab-url">Video URL</button>
+                    <button class="auth-tab" data-summary-tab="text" id="summary-tab-text">Metin</button>
+                </div>
+
+                <div id="summary-url-input-area">
+                    <input type="url" class="form-input" id="summary-url" placeholder="https://youtube.com/watch?v=..." style="width:100%; margin-bottom: 14px;">
+                </div>
+                <div id="summary-text-input-area" style="display: none;">
+                    <textarea class="notes-textarea" id="summary-text" placeholder="Ders metnini buraya yapıştırın..."></textarea>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="summary-submit-btn" style="width:100%; margin-bottom: 20px;">
+                <span class="material-icons-round">auto_awesome</span>
+                <span>Yapay Zeka ile Özetle</span>
+            </button>
+
+            <div class="loading-spinner" id="summary-loading">
+                <div class="spinner-icon"></div>
+                <span>Yapay zeka özetliyor...</span>
+            </div>
+
+            <div class="summary-output" id="summary-output"></div>
+        </div>
+
+        <!-- ====== FLASHCARD (KARTLAR) SAYFASI ====== -->
+        <div class="page" id="page-cards">
+            <div class="page-header">
+                <h1>Flaş Kart Üreteci</h1>
+                <p>Ders notlarını yapıştır ve yapay zekanın senin için soru-cevap kartları hazırlamasına izin ver</p>
+            </div>
+
+            <div class="generator-card">
+                <div class="generator-tabs">
+                    <span class="gen-tab-label">ÇALIŞMA NOTLARI</span>
+                    <button class="gen-tab-btn" id="ocr-toggle-btn" type="button">
+                        <span>+</span> Resimden Tara (OCR)
+                    </button>
+                </div>
+
+                <!-- OCR Dosya Yükleme -->
+                <div class="ocr-upload-area" id="ocr-upload-area">
+                    <span class="material-icons-round">photo_camera</span>
+                    <p>El yazısı notlarınızın fotoğrafını yükleyin</p>
+                    <p class="file-name" id="ocr-file-name"></p>
+                </div>
+                <input type="file" id="ocr-file-input" accept="image/*" capture="environment" style="display:none">
+
+                <textarea class="notes-textarea" id="flashcard-notes" placeholder="Ders notlarını buraya yapıştırın. El yazısı notlarını taratmak için üstteki 'Resimden Tara' butonunu da kullanabilirsiniz..."></textarea>
+
+                <button class="btn-primary generate-btn" id="flashcard-generate-btn">
+                    <span class="material-icons-round">star</span>
+                    <span>Yapay Zeka Flaş Kart Üret (5 Kart)</span>
+                </button>
+
+                <div class="loading-spinner" id="flashcard-loading">
+                    <div class="spinner-icon"></div>
+                    <span>Yapay zeka kartları oluşturuyor...</span>
+                </div>
+            </div>
+
+            <h3 class="saved-cards-header" id="saved-cards-title">Bütün Kayıtlı Kartların (0)</h3>
+            <div id="flashcard-list">
+                <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 16px 0;">Henüz kayıtlı kart yok.</p>
+            </div>
+        </div>
+
+        <!-- ====== SINAV (QUIZ) SAYFASI ====== -->
+        <div class="page" id="page-quiz">
+            <div class="page-header">
+                <h1>AI Sınav Hazırlayıcı</h1>
+                <p>İstediğin ders ve konuyu gir, Yapay Zeka senin bilgilerini ölçmek için anında test kursu hazırlasın.</p>
+            </div>
+
+            <!-- Quiz Oluşturma Formu -->
+            <div id="quiz-form-container">
+                <div class="card" style="margin-bottom: 16px;">
+                    <div class="quiz-form-group">
+                        <label class="form-label">DERS / ALAN</label>
+                        <input type="text" class="form-input" id="quiz-subject" placeholder="Fen Bilgisi">
+                    </div>
+                    <div class="quiz-form-group">
+                        <label class="form-label">SINIF SEVİYESİ</label>
+                        <input type="text" class="form-input" id="quiz-grade" placeholder="Lise 1">
+                    </div>
+                    <div class="quiz-form-group">
+                        <label class="form-label">KONU BAŞLIĞI</label>
+                        <input type="text" class="form-input" id="quiz-topic" placeholder="Hücre Bölünmesi">
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="quiz-generate-btn" style="width: 100%;">
+                    <span class="material-icons-round">auto_awesome</span>
+                    <span>Yapay Zeka Çoktan Seçmeli Sınav Üret</span>
+                </button>
+
+                <div class="loading-spinner" id="quiz-loading">
+                    <div class="spinner-icon"></div>
+                    <span>Yapay zeka sınavı hazırlıyor...</span>
+                </div>
+            </div>
+
+            <!-- Quiz Soruları -->
+            <div class="quiz-questions-container" id="quiz-questions-container"></div>
+
+            <!-- Quiz Sonucu -->
+            <div class="quiz-result" id="quiz-result">
+                <div class="quiz-score-circle">
+                    <span class="score-num" id="quiz-score-num">0</span>
+                    <span class="score-label">puan</span>
+                </div>
+                <h3 id="quiz-result-text">Harika!</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;" id="quiz-result-detail"></p>
+                <button class="btn-primary" id="quiz-retry-btn" style="width:100%;">Yeni Sınav Oluştur</button>
+            </div>
+        </div>
+
+        <!-- ====== DERS KOÇU (AI COACH) ====== -->
+        <div class="page" id="page-coach">
+            <div class="coach-header">
+                <div>
+                    <h1>Çalışma Koçu (AI Coach)</h1>
+                    <p>Konuları anlattır, sorular sor veya tüyolar al</p>
+                </div>
+                <button class="coach-clear-btn" id="coach-clear-btn" title="Sohbeti Temizle">
+                    <span class="material-icons-round">delete_outline</span>
+                </button>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <!-- Chat baloncukları buraya JS ile eklenir -->
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="coach-input" placeholder="Sorunu sor..." autocomplete="off">
+                <button class="chat-send-btn" id="coach-send-btn">
+                    <span class="material-icons-round">play_arrow</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ====== LİDERLİK TABLOSU ====== -->
+        <div class="page" id="page-leaderboard">
+            <div class="page-header">
+                <h1>🏆 Liderlik Tablosu</h1>
+            </div>
+            <div id="leaderboard-list"></div>
+            <div class="leaderboard-user-rank" id="leaderboard-user-rank"></div>
+        </div>
+
+        <!-- ====== PROFİL SAYFASI ====== -->
+        <div class="page" id="page-profile">
+            <div class="page-header">
+                <h1>Profilim</h1>
+            </div>
+
+            <div class="profile-header-card">
+                <div class="profile-avatar-lg" id="profile-avatar">KU</div>
+                <h2 id="profile-name">Kullanıcı</h2>
+                <p class="profile-email" id="profile-email">email@example.com</p>
+                <span class="plan-badge free" id="profile-plan-badge">
+                    <span class="material-icons-round" style="font-size: 14px;">star</span>
+                    STANDART ÜCRETSİZ
+                </span>
+            </div>
+
+            <div class="xp-stats-card" id="xp-stats-card">
+                <div class="xp-top-row">
+                    <div class="xp-level-badge" id="xp-level-badge">
+                        <span class="material-icons-round" style="font-size: 18px;">auto_awesome</span>
+                        <span id="xp-level-text">Seviye 1</span>
+                    </div>
+                    <div class="xp-streak-badge" id="xp-streak-badge">
+                        <span class="streak-fire">🔥</span>
+                        <span id="xp-streak-text">0 Gün</span>
+                    </div>
+                </div>
+                <div class="xp-bar-section">
+                    <div class="xp-bar-label">
+                        <span>XP</span>
+                        <span id="xp-bar-numbers">0 / 100</span>
+                    </div>
+                    <div class="xp-bar-bg">
+                        <div class="xp-bar-fill" id="xp-bar-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="xp-total-text" id="xp-total-text">Toplam 0 XP</div>
+            </div>
+
+            <div class="quota-section">
+                <h3>Günlük Kullanım Kotaları</h3>
+                <div id="quota-list">
+                    <!-- JS ile doldurulacak -->
+                </div>
+            </div>
+
+            <button class="logout-btn" id="logout-btn">
+                <span class="material-icons-round" style="font-size: 18px; vertical-align: middle;">logout</span>
+                Çıkış Yap
+            </button>
+        </div>
+
+    </div><!-- .app-content -->
+
+    <!-- Üst XP Barı -->
+    <div class="top-xp-bar" id="top-xp-bar">
+        <div class="top-bar-badge streak-badge">
+            <span class="badge-icon">🔥</span>
+            <span class="badge-value" id="top-streak">0</span>
+        </div>
+        <div class="top-bar-badge xp-badge">
+            <span class="badge-icon">⭐</span>
+            <span class="badge-value" id="top-xp">0</span>
+        </div>
+        <div class="top-bar-badge level-badge">
+            <span class="badge-value" id="top-level">LVL 1</span>
+        </div>
+    </div>
+
+    <!-- Alt Navigasyon Barı -->
+    <nav class="bottom-nav" id="bottom-nav">
+        <button class="nav-item active" data-page="home" id="nav-home">
+            <div class="nav-icon-wrap">
+                <span class="material-icons-round nav-icon">home</span>
+            </div>
+            <span>Ana Sayfa</span>
+        </button>
+        <button class="nav-item" data-page="cards" id="nav-cards">
+            <div class="nav-icon-wrap">
+                <span class="material-icons-round nav-icon">favorite</span>
+            </div>
+            <span>Kartlar</span>
+        </button>
+        <button class="nav-item" data-page="quiz" id="nav-quiz">
+            <div class="nav-icon-wrap">
+                <span class="material-icons-round nav-icon">edit</span>
+            </div>
+            <span>Sınav</span>
+        </button>
+        <button class="nav-item" data-page="coach" id="nav-coach">
+            <div class="nav-icon-wrap">
+                <span class="material-icons-round nav-icon">info</span>
+            </div>
+            <span>Ders Koçu</span>
+        </button>
+        <button class="nav-item" data-page="leaderboard" id="nav-leaderboard">
+            <div class="nav-icon-wrap">
+                <span class="material-icons-round nav-icon">leaderboard</span>
+            </div>
+            <span>Sıralama</span>
+        </button>
+        <button class="nav-item" data-page="profile" id="nav-profile">
+            <div class="nav-icon-wrap">
+                <span class="material-icons-round nav-icon">person</span>
+            </div>
+            <span>Profil</span>
+        </button>
+    </nav>
+</div>
+
+<!-- ====== 3D FLİP FLASHCARD OVERLAY ====== -->
+<div class="flip-overlay" id="flip-overlay">
+    <button class="flip-close" id="flip-close-btn">
+        <span class="material-icons-round">close</span>
+    </button>
+
+    <div style="width: 100%; max-width: 340px; margin-bottom: 24px;">
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 6px;" id="flip-title">Yapay Zeka Tarafından Üretilen Kartlar</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem;" id="flip-subtitle">Çevirmek ve cevabı görmek için karta dokun</p>
+    </div>
+
+    <div class="flip-container" id="flip-container">
+        <div class="flip-card" id="flip-card">
+            <div class="flip-front">
+                <span class="flip-label">SORU</span>
+                <div id="flip-front-text" style="font-weight: 600; font-size: 1.2rem;">Flashcard sorusu buraya gelecek</div>
+                <div style="font-size: 0.75rem; color: rgba(255,255,255,0.5); position: absolute; bottom: 24px;">Cevabı görmek için dokun</div>
+            </div>
+            <div class="flip-back">
+                <span class="flip-label">CEVAP</span>
+                <div id="flip-back-text" style="font-weight: 500; font-size: 1.05rem;">Flashcard cevabı buraya gelecek</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="flip-nav" style="width: 100%; max-width: 340px; display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+        <span class="flip-counter" id="flip-counter" style="font-weight: 700; color: #fff;">Kart 1 / 5</span>
+        <div style="display: flex; gap: 10px;">
+            <button id="flip-prev-btn" style="border-radius: var(--radius-md); width: auto; padding: 12px 20px; font-weight: 600; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary);">Geri</button>
+            <button id="flip-next-btn" style="border-radius: var(--radius-md); width: auto; padding: 12px 20px; font-weight: 600; background: var(--accent-purple); color: #fff; border: none;">Sonraki</button>
+            <button id="flip-done-btn" style="border-radius: var(--radius-md); width: auto; padding: 12px 20px; font-weight: 600; background: var(--accent-green); color: #000; border: none; display: none;">Tamamlandı</button>
+        </div>
+    </div>
+</div>
+
+<!-- ====== KOTA UYARI MODALI ====== -->
+<div class="modal-overlay" id="quota-modal">
+    <div class="modal-box">
+        <div class="modal-icon">
+            <span class="material-icons-round">info</span>
+        </div>
+        <h3>Studify Bildirimi</h3>
+        <p id="quota-modal-text">Günlük limitinizi doldurdunuz.</p>
+        <button class="btn-primary modal-close-btn" id="quota-modal-close">Tamam</button>
+    </div>
+</div>
+
+<!-- ====== XP BİLDİRİM TOAST ====== -->
+<div class="xp-toast" id="xp-toast">
+    <div class="xp-toast-content">
+        <span class="xp-toast-icon">⭐</span>
+        <div>
+            <div class="xp-toast-text" id="xp-toast-text">+10 XP</div>
+            <div class="xp-toast-sub" id="xp-toast-sub"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     JAVASCRIPT — UYGULAMA MANTIĞI
+     ============================================ -->
+<script>
+(function() {
+    'use strict';
+
+    // =============================================
+    // YAPILANDIRMA
+    // =============================================
+    const CONFIG = {
+        // Backend API adresi — aynı sunucudan servis edildiğinde boş bırakılır
+        API_BASE: window.location.origin + '/api',
+        // LocalStorage anahtarları
+        TOKEN_KEY: 'studify_token',
+        USER_KEY: 'studify_user',
+    };
+
+    // =============================================
+    // YARDIMCI FONKSİYONLAR
+    // =============================================
+
+    /** Elementleri ID ile seç */
+    const $ = (id) => document.getElementById(id);
+
+    /** Basit markdown'ı HTML'e dönüştür */
+    function renderMarkdown(text) {
+        if (!text) return '';
+        let html = text
+            // Başlıklar
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            // Kalın
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            // İtalik
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            // Kod bloku
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            // Sırasız liste
+            .replace(/^\* (.+)$/gm, '<li>$1</li>')
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            // Paragraflar
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>');
+
+        // Liste öğelerini sarma
+        html = html.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
+        // Ardışık ul etiketlerini birleştir
+        html = html.replace(/<\/ul>\s*<ul>/g, '');
+
+        return '<p>' + html + '</p>';
+    }
+
+    /** Kullanıcı adından avatar başharfleri */
+    function getInitials(name) {
+        if (!name) return '?';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+        return parts[0].substring(0, 2).toUpperCase();
+    }
+
+    /** Tarih formatlama */
+    function formatDate(dateStr) {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    // =============================================
+    // API İSTEMCİSİ — Fetch Wrapper
+    // =============================================
+    const api = {
+        /** Token'lı GET isteği */
+        async get(endpoint) {
+            const token = localStorage.getItem(CONFIG.TOKEN_KEY);
+            const res = await fetch(CONFIG.API_BASE + endpoint, {
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                },
+            });
+            if (res.status === 401) { App.logout(); throw new Error('Oturum süresi doldu'); }
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw { status: res.status, data };
+            }
+            return res.json();
+        },
+
+        /** Token'lı POST isteği (JSON) */
+        async post(endpoint, body) {
+            const token = localStorage.getItem(CONFIG.TOKEN_KEY);
+            const res = await fetch(CONFIG.API_BASE + endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : '',
+                },
+                body: JSON.stringify(body),
+            });
+            if (res.status === 401) { App.logout(); throw new Error('Oturum süresi doldu'); }
+            if (res.status === 429) {
+                const data = await res.json().catch(() => ({}));
+                throw { status: 429, data: data.detail || data };
+            }
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw { status: res.status, data: data.detail || data };
+            }
+            return res.json();
+        },
+
+        /** Token'lı POST isteği (FormData / Dosya) */
+        async upload(endpoint, formData) {
+            const token = localStorage.getItem(CONFIG.TOKEN_KEY);
+            const res = await fetch(CONFIG.API_BASE + endpoint, {
+                method: 'POST',
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                },
+                body: formData,
+            });
+            if (res.status === 401) { App.logout(); throw new Error('Oturum süresi doldu'); }
+            if (res.status === 429) {
+                const data = await res.json().catch(() => ({}));
+                throw { status: 429, data: data.detail || data };
+            }
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw { status: res.status, data: data.detail || data };
+            }
+            return res.json();
+        },
+
+        /** Token'lı DELETE isteği */
+        async delete(endpoint) {
+            const token = localStorage.getItem(CONFIG.TOKEN_KEY);
+            const res = await fetch(CONFIG.API_BASE + endpoint, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                },
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw { status: res.status, data };
+            }
+            return res.json();
+        },
+    };
+
+    // =============================================
+    // ANA UYGULAMA SINIFi
+    // =============================================
+    const App = {
+        user: null,        // Mevcut kullanıcı bilgisi
+        quotas: null,      // Günlük kota bilgileri
+        currentPage: 'home',
+        pomodoroInterval: null,
+        pomodoroSeconds: 25 * 60,
+        pomodoroRunning: false,
+        flashcards: [],    // Tüm kayıtlı flashcardlar
+        flipSessionCards: [], // O anki Flip overlay'de gösterilecek kartlar (örn. sadece yeniler)
+        flipIndex: 0,      // 3D flip görünümündeki mevcut kart indeksi
+        chatHistory: [],   // Ders koçu sohbet geçmişi
+        quizQuestions: [], // Mevcut quiz soruları
+        quizAnswers: {},   // Kullanıcı cevapları
+
+        // -------------------------------------------
+        // BAŞLATMA — Splash Screen ile Cold Start Yönetimi
+        // -------------------------------------------
+        async init() {
+            this.bindEvents();
+            this.registerSW();
+
+            const token = localStorage.getItem(CONFIG.TOKEN_KEY);
+            if (!token) {
+                // Token yoksa → Giriş ekranı
+                this.hideSplash();
+                this.showAuth();
+                return;
+            }
+
+            // Token varsa → Profili backend'den çek (NeonDB cold start beklenir)
+            $('splash-status').textContent = 'Veriler yükleniyor...';
+            try {
+                const profile = await api.get('/profile/');
+                this.user = profile.user;
+                this.quotas = profile.quotas;
+                localStorage.setItem(CONFIG.USER_KEY, JSON.stringify(this.user));
+                this.hideSplash();
+                this.showApp();
+            } catch (err) {
+                // Token geçersiz veya sunucu hatası
+                console.warn('Profil yüklenemedi:', err);
+                localStorage.removeItem(CONFIG.TOKEN_KEY);
+                localStorage.removeItem(CONFIG.USER_KEY);
+                this.hideSplash();
+                this.showAuth();
+            }
+        },
+
+        /** Splash screen'i gizle */
+        hideSplash() {
+            $('splash-screen').classList.add('hidden');
+        },
+
+        /** Auth ekranını göster */
+        showAuth() {
+            $('auth-screen').classList.add('active');
+            $('app-container').classList.remove('active');
+        },
+
+        /** Ana uygulamayı göster */
+        showApp() {
+            $('auth-screen').classList.remove('active');
+            $('app-container').classList.add('active');
+            this.updateUI();
+            this.loadFlashcards();
+            this.loadSessions();
+        },
+
+        // -------------------------------------------
+        // OLAY BAĞLAYICILARI (Event Binding)
+        // -------------------------------------------
+        bindEvents() {
+            // Auth tab geçişi
+            document.querySelectorAll('[data-auth-tab]').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const target = tab.dataset.authTab;
+                    $('login-form').classList.toggle('active', target === 'login');
+                    $('register-form').classList.toggle('active', target === 'register');
+                    $('auth-error').classList.remove('visible');
+                });
+            });
+
+            // Giriş formu
+            $('login-form').addEventListener('submit', (e) => { e.preventDefault(); this.handleLogin(); });
+
+            // Kayıt formu
+            $('register-form').addEventListener('submit', (e) => { e.preventDefault(); this.handleRegister(); });
+
+            // Alt navigasyon
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => this.navigateTo(item.dataset.page));
+            });
+
+            // AI Araç kartları
+            $('tool-solver').addEventListener('click', () => this.showSubPage('solver'));
+            $('tool-summarizer').addEventListener('click', () => this.showSubPage('summarizer'));
+
+            // Geri butonları
+            $('solver-back-btn').addEventListener('click', () => this.hideSubPage('solver'));
+            $('summarizer-back-btn').addEventListener('click', () => this.hideSubPage('summarizer'));
+
+            // Pomodoro
+            $('pomodoro-btn').addEventListener('click', () => this.togglePomodoro());
+
+            // Flashcard üretici
+            $('ocr-toggle-btn').addEventListener('click', () => this.toggleOCR());
+            $('ocr-upload-area').addEventListener('click', () => $('ocr-file-input').click());
+            $('ocr-file-input').addEventListener('change', (e) => this.handleOCRFile(e));
+            $('flashcard-generate-btn').addEventListener('click', () => this.generateFlashcards());
+
+            // 3D Flip
+            $('flip-container').addEventListener('click', () => this.flipCard());
+            $('flip-prev-btn').addEventListener('click', () => this.flipNav(-1));
+            $('flip-next-btn').addEventListener('click', () => this.flipNav(1));
+            $('flip-done-btn').addEventListener('click', () => this.closeFlip());
+            $('flip-close-btn').addEventListener('click', () => this.closeFlip());
+
+            // Soru Çözücü
+            $('solver-upload-zone').addEventListener('click', () => $('solver-file-input').click());
+            $('solver-file-input').addEventListener('change', (e) => this.handleSolverFile(e));
+            $('solver-submit-btn').addEventListener('click', () => this.solveProblem());
+            $('solver-retry-btn').addEventListener('click', () => this.resetSolver());
+
+            // Sürükle-bırak — Solver
+            const solverZone = $('solver-upload-zone');
+            solverZone.addEventListener('dragover', (e) => { e.preventDefault(); solverZone.classList.add('dragover'); });
+            solverZone.addEventListener('dragleave', () => solverZone.classList.remove('dragover'));
+            solverZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                solverZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    $('solver-file-input').files = e.dataTransfer.files;
+                    this.handleSolverFile({ target: { files: e.dataTransfer.files } });
+                }
+            });
+
+            // Özetleyici
+            document.querySelectorAll('[data-summary-tab]').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('[data-summary-tab]').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    const t = tab.dataset.summaryTab;
+                    $('summary-url-input-area').style.display = t === 'url' ? 'block' : 'none';
+                    $('summary-text-input-area').style.display = t === 'text' ? 'block' : 'none';
+                });
+            });
+            $('summary-submit-btn').addEventListener('click', () => this.createSummary());
+
+            // Quiz
+            $('quiz-generate-btn').addEventListener('click', () => this.generateQuiz());
+            $('quiz-retry-btn').addEventListener('click', () => this.resetQuiz());
+
+            // Ders Koçu
+            $('coach-send-btn').addEventListener('click', () => this.sendCoachMessage());
+            $('coach-input').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendCoachMessage(); }
+            });
+            $('coach-clear-btn').addEventListener('click', () => this.clearChat());
+
+            // Profil
+            $('logout-btn').addEventListener('click', () => this.logout());
+
+            // Kota modal
+            $('quota-modal-close').addEventListener('click', () => {
+                $('quota-modal').classList.remove('active');
+            });
+        },
+
+        // -------------------------------------------
+        // YETKİLENDİRME (AUTH)
+        // -------------------------------------------
+        async handleLogin() {
+            const email = $('login-email').value.trim();
+            const password = $('login-password').value;
+            if (!email || !password) return;
+
+            const btn = $('login-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner-icon" style="width:20px;height:20px;border-width:2px;"></div>';
+
+            try {
+                const data = await api.post('/auth/login', { email, password });
+                localStorage.setItem(CONFIG.TOKEN_KEY, data.access_token);
+                this.user = data.user;
+                localStorage.setItem(CONFIG.USER_KEY, JSON.stringify(data.user));
+
+                // Profil + kota bilgisini çek
+                try {
+                    const profile = await api.get('/profile/');
+                    this.quotas = profile.quotas;
+                } catch(e) {
+                    console.warn('Kota bilgisi çekilemedi:', e);
+                }
+
+                this.showApp();
+            } catch (err) {
+                const msg = err?.data?.detail || err?.data || 'Giriş başarısız. Bilgilerinizi kontrol edin.';
+                $('auth-error').textContent = typeof msg === 'string' ? msg : 'Giriş başarısız.';
+                $('auth-error').classList.add('visible');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Giriş Yap</span>';
+            }
+        },
+
+        async handleRegister() {
+            const display_name = $('register-name').value.trim();
+            const email = $('register-email').value.trim();
+            const password = $('register-password').value;
+            if (!display_name || !email || !password) return;
+
+            const btn = $('register-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner-icon" style="width:20px;height:20px;border-width:2px;"></div>';
+
+            try {
+                const data = await api.post('/auth/register', { display_name, email, password });
+                localStorage.setItem(CONFIG.TOKEN_KEY, data.access_token);
+                this.user = data.user;
+                localStorage.setItem(CONFIG.USER_KEY, JSON.stringify(data.user));
+                this.quotas = null; // Yeni kullanıcı — kota henüz oluşmadı
+                this.showApp();
+            } catch (err) {
+                const msg = err?.data?.detail || err?.data || 'Kayıt başarısız.';
+                $('auth-error').textContent = typeof msg === 'string' ? msg : 'Kayıt başarısız.';
+                $('auth-error').classList.add('visible');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Kayıt Ol</span>';
+            }
+        },
+
+        logout() {
+            localStorage.removeItem(CONFIG.TOKEN_KEY);
+            localStorage.removeItem(CONFIG.USER_KEY);
+            this.user = null;
+            this.quotas = null;
+            this.chatHistory = [];
+            this.pomodoroRunning = false;
+            if (this.pomodoroInterval) clearInterval(this.pomodoroInterval);
+            this.showAuth();
+            // Formları temizle
+            $('login-email').value = '';
+            $('login-password').value = '';
+            $('register-name').value = '';
+            $('register-email').value = '';
+            $('register-password').value = '';
+        },
+
+        // -------------------------------------------
+        // UI GÜNCELLEME
+        // -------------------------------------------
+        updateUI() {
+            if (!this.user) return;
+
+            const name = this.user.display_name || this.user.email.split('@')[0];
+            const initials = getInitials(name);
+            const planText = this.user.plan_type === 'PLUS' ? 'Plan: PLUS ÜYELİK' : 'Plan: STANDART ÜCRETSİZ';
+
+            // Dashboard hoş geldin
+            $('welcome-name').textContent = name;
+            $('welcome-plan-text').textContent = planText;
+            $('welcome-avatar').textContent = initials;
+
+            // Profil sayfası
+            $('profile-name').textContent = name;
+            $('profile-email').textContent = this.user.email;
+            $('profile-avatar').textContent = initials;
+
+            const badge = $('profile-plan-badge');
+            if (this.user.plan_type === 'PLUS') {
+                badge.className = 'plan-badge plus';
+                badge.innerHTML = '<span class="material-icons-round" style="font-size:14px;">star</span> PLUS ÜYELİK';
+            } else {
+                badge.className = 'plan-badge free';
+                badge.innerHTML = '<span class="material-icons-round" style="font-size:14px;">star</span> STANDART ÜCRETSİZ';
+            }
+
+            this.updateXpDisplay();
+            this.updateQuotas();
+        },
+
+        updateXpDisplay() {
+            if (!this.user) return;
+            const xp = this.user.xp_points || 0;
+            const level = this.user.level || 1;
+            const streak = this.user.streak_count || 0;
+            const xpInLevel = xp % 100;
+            const pct = Math.min((xpInLevel / 100) * 100, 100);
+
+            $('xp-level-text').textContent = `Seviye ${level}`;
+            $('xp-streak-text').textContent = `${streak} Gün`;
+            $('xp-bar-numbers').textContent = `${xpInLevel} / 100`;
+            $('xp-bar-fill').style.width = `${pct}%`;
+            $('xp-total-text').textContent = `Toplam ${xp} XP`;
+
+            $('top-level').textContent = `LVL ${level}`;
+            $('top-streak').textContent = streak;
+            $('top-xp').textContent = xp;
+        },
+
+        /** XP bildirimi toast */
+        showXpToast(xpData) {
+            if (!xpData) return;
+            const toast = $('xp-toast');
+            const text = $('xp-toast-text');
+            const sub = $('xp-toast-sub');
+
+            text.innerHTML = `<span style="font-size:1.2rem;">⭐</span> +${xpData.xp_earned} XP`;
+
+            let subText = `Toplam: ${xpData.total_xp} XP • Seviye ${xpData.level}`;
+            if (xpData.leveled_up) {
+                subText += ` 🎉 Seviye Atladın!`;
+            }
+            if (xpData.streak_count > 0) {
+                subText += ` • 🔥 ${xpData.streak_count} Günlük Seri`;
+            }
+            sub.innerHTML = subText;
+
+            toast.classList.add('active');
+            clearTimeout(this._xpToastTimeout);
+            this._xpToastTimeout = setTimeout(() => {
+                toast.classList.remove('active');
+            }, 3500);
+        },
+
+        async loadLeaderboard() {
+            const list = $('leaderboard-list');
+            const rankInfo = $('leaderboard-user-rank');
+            list.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:20px;">Yükleniyor...</p>';
+            rankInfo.textContent = '';
+
+            try {
+                const data = await api.get('/profile/leaderboard');
+
+                if (!data.leaders || data.leaders.length === 0) {
+                    list.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:16px;">Henüz veri yok.</p>';
+                    return;
+                }
+
+                list.innerHTML = data.leaders.map(u => {
+                    let rankClass = '';
+                    if (u.rank === 1) rankClass = 'gold';
+                    else if (u.rank === 2) rankClass = 'silver';
+                    else if (u.rank === 3) rankClass = 'bronze';
+
+                    const isCurrentUser = this.user && u.display_name === this.user.display_name;
+
+                    return `
+                        <div class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}">
+                            <div class="leaderboard-rank ${rankClass}">${u.rank}</div>
+                            <div class="leaderboard-name">${u.display_name} ${isCurrentUser ? '<span style="font-size:0.7rem;color:var(--accent-purple);">(sen)</span>' : ''}</div>
+                            <div class="leaderboard-level">Lvl ${u.level}</div>
+                            <div class="leaderboard-xp">${u.xp_points} XP</div>
+                        </div>
+                    `;
+                }).join('');
+
+                if (data.user_rank) {
+                    rankInfo.textContent = `Sıralamada ${data.user_rank}. sıradasın`;
+                } else {
+                    rankInfo.textContent = '';
+                }
+            } catch (e) {
+                list.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:16px;">Lider tablosu yüklenemedi.</p>';
+            }
+        },
+
+        /** Kota bilgilerini güncelle */
+        updateQuotas() {
+            const quotaList = $('quota-list');
+            if (!this.quotas) {
+                quotaList.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; padding: 12px 0;">Kota bilgileri yükleniyor...</p>';
+                return;
+            }
+
+            const items = [
+                { label: '📸 Fotoğraftan Soru Çözme', count: this.quotas.image_upload_count, limit: this.quotas.image_upload_limit },
+                { label: '🃏 Flashcard Üretimi', count: this.quotas.flashcard_count, limit: this.quotas.flashcard_limit },
+                { label: '💬 AI Koç Mesajları', count: this.quotas.ai_coach_count, limit: this.quotas.ai_coach_limit },
+                { label: '📝 Quiz Oluşturma', count: this.quotas.quiz_count, limit: this.quotas.quiz_limit },
+                { label: '📄 Özet Oluşturma', count: this.quotas.summary_count, limit: this.quotas.summary_limit },
+            ];
+
+            quotaList.innerHTML = items.map(item => {
+                const pct = Math.min((item.count / item.limit) * 100, 100);
+                const barClass = pct >= 100 ? 'full' : pct >= 70 ? 'warning' : '';
+                return `
+                    <div class="quota-card">
+                        <span class="quota-label">${item.label}</span>
+                        <div class="quota-value">
+                            <div class="quota-bar-bg">
+                                <div class="quota-bar-fill ${barClass}" style="width: ${pct}%"></div>
+                            </div>
+                            <span class="quota-count">${item.count}/${item.limit}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        },
+
+        // -------------------------------------------
+        // NAVİGASYON
+        // -------------------------------------------
+        navigateTo(page) {
+            // Alt sayfaları gizle
+            document.querySelectorAll('.sub-page').forEach(sp => sp.classList.remove('active'));
+
+            // Ana sayfaları güncelle
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const target = $('page-' + page);
+            if (target) target.classList.add('active');
+
+            // Nav aktif öğesini güncelle
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const navItem = $('nav-' + page);
+            if (navItem) navItem.classList.add('active');
+
+            this.currentPage = page;
+
+            // Profil sayfasına geçişte kota yenile
+            if (page === 'profile') this.refreshProfile();
+            if (page === 'leaderboard') this.loadLeaderboard();
+        },
+
+        /** Alt sayfayı göster (solver, summarizer) */
+        showSubPage(name) {
+            $('page-home').classList.remove('active');
+            $('page-' + name).classList.add('active');
+        },
+
+        /** Alt sayfayı gizle */
+        hideSubPage(name) {
+            $('page-' + name).classList.remove('active');
+            $('page-home').classList.add('active');
+        },
+
+        // -------------------------------------------
+        // POMODORO ZAMANLAYICI
+        // -------------------------------------------
+        togglePomodoro() {
+            if (this.pomodoroRunning) {
+                // Durdur
+                clearInterval(this.pomodoroInterval);
+                this.pomodoroRunning = false;
+                $('pomodoro-btn').textContent = 'Devam Et';
+
+                // Geçen süreyi hesapla ve kaydet
+                const elapsed = (25 * 60) - this.pomodoroSeconds;
+                if (elapsed >= 60) {
+                    this.saveSession(Math.floor(elapsed / 60));
+                }
+            } else if (this.pomodoroSeconds <= 0) {
+                // Sıfırla
+                this.pomodoroSeconds = 25 * 60;
+                this.updatePomodoroDisplay();
+                $('pomodoro-btn').textContent = 'Derse Başla (Pomodoro)';
+            } else {
+                // Başlat
+                this.pomodoroRunning = true;
+                $('pomodoro-btn').textContent = 'Durakla';
+                this.pomodoroInterval = setInterval(() => {
+                    this.pomodoroSeconds--;
+                    this.updatePomodoroDisplay();
+                    if (this.pomodoroSeconds <= 0) {
+                        clearInterval(this.pomodoroInterval);
+                        this.pomodoroRunning = false;
+                        $('pomodoro-btn').textContent = 'Yeni Seans Başlat';
+                        this.saveSession(25);
+                        // Bildirim
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification('Studify ⏰', { body: 'Pomodoro seansın tamamlandı! Harika iş çıkardın!' });
+                        }
+                    }
+                }, 1000);
+            }
+        },
+
+        updatePomodoroDisplay() {
+            const m = Math.floor(this.pomodoroSeconds / 60);
+            const s = this.pomodoroSeconds % 60;
+            $('pomodoro-display').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        },
+
+        /** Pomodoro seansını backend'e kaydet (İPTAL EDİLDİ) */
+        async saveSession(minutes) {
+            // Seanslar artık hiçbir yere kaydedilmiyor.
+        },
+
+        /** Seans tarihçesini yükle (İPTAL EDİLDİ) */
+        async loadSessions() {
+            const container = $('session-history');
+            container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 20px 0;">Pomodoro çalışma seansları artık kaydedilmemektedir.</p>';
+        },
+
+        // -------------------------------------------
+        // FLASHCARD SİSTEMİ
+        // -------------------------------------------
+        toggleOCR() {
+            const area = $('ocr-upload-area');
+            area.classList.toggle('active');
+        },
+
+        handleOCRFile(e) {
+            const file = e.target.files[0];
+            if (file) {
+                $('ocr-file-name').textContent = file.name;
+                $('ocr-upload-area').classList.add('active');
+            }
+        },
+
+        /** Flashcard üret (metin veya OCR resimden) */
+        async generateFlashcards() {
+            const notes = $('flashcard-notes').value.trim();
+            const ocrFile = $('ocr-file-input').files[0];
+
+            if (!notes && !ocrFile) {
+                alert('Lütfen ders notlarınızı girin veya resim yükleyin.');
+                return;
+            }
+
+            const loading = $('flashcard-loading');
+            const btn = $('flashcard-generate-btn');
+            btn.disabled = true;
+            loading.classList.add('active');
+
+            try {
+                let result;
+                if (ocrFile && !notes) {
+                    const formData = new FormData();
+                    formData.append('file', ocrFile);
+                    result = await api.upload('/flashcards/generate-from-image', formData);
+                } else {
+                    result = await api.post('/flashcards/generate', {
+                        notes_text: notes,
+                        count: 5,
+                    });
+                }
+
+                this.showXpToast(result.xp_notification);
+
+                const newCards = result.cards || [];
+                // Yeni kartları localstorage'a ekle
+                const cardsStr = localStorage.getItem('local_flashcards');
+                const existingCards = cardsStr ? JSON.parse(cardsStr) : [];
+                const updatedCards = [...newCards, ...existingCards];
+                localStorage.setItem('local_flashcards', JSON.stringify(updatedCards));
+                
+                await this.loadFlashcards();
+                $('flashcard-notes').value = '';
+                $('ocr-file-input').value = '';
+                $('ocr-file-name').textContent = '';
+                this.refreshProfile();
+
+                if (newCards.length > 0) {
+                    this.openFlip(0, newCards, true);
+                }
+            } catch (err) {
+                this.handleQuotaError(err, 'Flashcard Üretimi');
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('active');
+            }
+        },
+
+        /** Kayıtlı flashcardları yükle (Local Storage) */
+        async loadFlashcards() {
+            try {
+                const cardsStr = localStorage.getItem('local_flashcards');
+                const cards = cardsStr ? JSON.parse(cardsStr) : [];
+                this.flashcards = cards;
+                $('saved-cards-title').textContent = `Bütün Kayıtlı Kartların (${cards.length})`;
+
+                const list = $('flashcard-list');
+                if (cards.length === 0) {
+                    list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 16px 0;">Henüz kayıtlı kart yok.</p>';
+                    return;
+                }
+
+                list.innerHTML = cards.map((card, i) => `
+                    <div class="flashcard-list-item" data-index="${i}" onclick="window._app.openFlip(${i})">
+                        <span class="fc-text">${card.front_text}</span>
+                        <span class="material-icons-round fc-check">check_circle</span>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.warn('Flashcardlar yüklenemedi:', e);
+            }
+        },
+
+        /** 3D Flip görünümünü aç */
+        openFlip(index, customCards = null, isNewGeneration = false) {
+            this.flipSessionCards = customCards || this.flashcards;
+            if (!this.flipSessionCards || this.flipSessionCards.length === 0) return;
+            this.flipIndex = index;
+            
+            if (isNewGeneration) {
+                $('flip-title').textContent = 'Yapay Zeka Tarafından Üretilen Kartlar';
+            } else {
+                $('flip-title').textContent = 'Kart Çalışması';
+            }
+            
+            this.updateFlipCard();
+            $('flip-overlay').classList.add('active');
+        },
+
+        flipCard() {
+            $('flip-card').classList.toggle('flipped');
+        },
+
+        flipNav(dir) {
+            $('flip-card').classList.remove('flipped');
+            const newIndex = this.flipIndex + dir;
+            if (newIndex >= 0 && newIndex < this.flipSessionCards.length) {
+                this.flipIndex = newIndex;
+                setTimeout(() => this.updateFlipCard(), 150);
+            }
+        },
+
+        updateFlipCard() {
+            const card = this.flipSessionCards[this.flipIndex];
+            if (!card) return;
+            $('flip-front-text').textContent = card.front_text;
+            $('flip-back-text').textContent = card.back_text;
+            $('flip-counter').textContent = `Kart ${this.flipIndex + 1} / ${this.flipSessionCards.length}`;
+            
+            // Geri butonu gizle/göster
+            $('flip-prev-btn').style.display = this.flipIndex > 0 ? 'block' : 'none';
+            
+            // Son karttayken Sonraki butonunu gizle, Tamamlandı butonunu göster
+            if (this.flipIndex === this.flipSessionCards.length - 1) {
+                $('flip-next-btn').style.display = 'none';
+                $('flip-done-btn').style.display = 'block';
+            } else {
+                $('flip-next-btn').style.display = 'block';
+                $('flip-done-btn').style.display = 'none';
+            }
+        },
+
+        closeFlip() {
+            $('flip-overlay').classList.remove('active');
+            $('flip-card').classList.remove('flipped');
+        },
+
+        // -------------------------------------------
+        // SORU ÇÖZÜCÜ
+        // -------------------------------------------
+        solverFile: null,
+
+        handleSolverFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            this.solverFile = file;
+
+            // Önizleme
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                $('solver-preview-img').src = ev.target.result;
+                $('solver-preview').classList.add('active');
+                $('solver-submit-btn').style.display = 'flex';
+                $('solver-upload-zone').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        },
+
+        async solveProblem() {
+            if (!this.solverFile) return;
+
+            const loading = $('solver-loading');
+            const btn = $('solver-submit-btn');
+            const output = $('solver-output');
+
+            btn.disabled = true;
+            loading.classList.add('active');
+            output.classList.remove('active');
+
+            try {
+                const formData = new FormData();
+                formData.append('file', this.solverFile);
+                const result = await api.upload('/solver/solve', formData);
+
+                this.showXpToast(result.xp_notification);
+
+                output.innerHTML = renderMarkdown(result.solution);
+                output.classList.add('active');
+                $('solver-retry-container').style.display = 'block';
+                this.refreshProfile();
+            } catch (err) {
+                this.handleQuotaError(err, 'Fotoğraftan Soru Çözme');
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('active');
+            }
+        },
+
+        resetSolver() {
+            this.solverFile = null;
+            $('solver-preview').classList.remove('active');
+            $('solver-preview-img').src = '';
+            $('solver-submit-btn').style.display = 'none';
+            $('solver-upload-zone').style.display = 'flex';
+            $('solver-output').classList.remove('active');
+            $('solver-output').innerHTML = '';
+            $('solver-retry-container').style.display = 'none';
+            $('solver-file-input').value = '';
+        },
+
+        // -------------------------------------------
+        // KONU ÖZETLEYİCİ
+        // -------------------------------------------
+        async createSummary() {
+            const activeTab = document.querySelector('[data-summary-tab].active');
+            const contentType = activeTab ? activeTab.dataset.summaryTab : 'text';
+
+            let content = '';
+            if (contentType === 'url') {
+                content = $('summary-url').value.trim();
+            } else {
+                content = $('summary-text').value.trim();
+            }
+
+            if (!content) {
+                alert('Lütfen bir URL veya metin girin.');
+                return;
+            }
+
+            const loading = $('summary-loading');
+            const btn = $('summary-submit-btn');
+            const output = $('summary-output');
+
+            btn.disabled = true;
+            loading.classList.add('active');
+            output.classList.remove('active');
+
+            try {
+                const result = await api.post('/summary/create', {
+                    content: content,
+                    content_type: contentType,
+                });
+
+                this.showXpToast(result.xp_notification);
+
+                output.innerHTML = `<h2>${result.title || 'Özet'}</h2>` + renderMarkdown(result.content);
+                output.classList.add('active');
+                this.refreshProfile();
+            } catch (err) {
+                this.handleQuotaError(err, 'Özet Oluşturma');
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('active');
+            }
+        },
+
+        // -------------------------------------------
+        // QUIZ SİSTEMİ
+        // -------------------------------------------
+        async generateQuiz() {
+            const subject = $('quiz-subject').value.trim();
+            const grade_level = $('quiz-grade').value.trim();
+            const topic = $('quiz-topic').value.trim();
+
+            if (!subject || !topic) {
+                alert('Lütfen ders ve konu başlığını girin.');
+                return;
+            }
+
+            const loading = $('quiz-loading');
+            const btn = $('quiz-generate-btn');
+            btn.disabled = true;
+            loading.classList.add('active');
+
+            try {
+                const result = await api.post('/quiz/generate', {
+                    subject,
+                    grade_level: grade_level || '9. Sınıf',
+                    topic,
+                    question_count: 5,
+                });
+
+                this.showXpToast(result.xp_notification);
+
+                this.quizQuestions = result.questions;
+                this.quizAnswers = {};
+                this.renderQuiz();
+                this.refreshProfile();
+            } catch (err) {
+                this.handleQuotaError(err, 'Quiz Oluşturma');
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('active');
+            }
+        },
+
+        renderQuiz() {
+            const container = $('quiz-questions-container');
+            $('quiz-form-container').style.display = 'none';
+            $('quiz-result').classList.remove('active');
+            container.classList.add('active');
+
+            const letters = ['A', 'B', 'C', 'D'];
+
+            container.innerHTML = this.quizQuestions.map((q, qi) => `
+                <div class="quiz-question-card" id="quiz-q-${qi}">
+                    <div class="quiz-question-num">Soru ${qi + 1} / ${this.quizQuestions.length}</div>
+                    <div class="quiz-question-text">${q.question}</div>
+                    <div class="quiz-options">
+                        ${q.options.map((opt, oi) => `
+                            <button class="quiz-option" data-q="${qi}" data-o="${oi}" onclick="window._app.selectQuizOption(${qi}, ${oi})">
+                                <span class="quiz-option-letter">${letters[oi]}</span>
+                                <span>${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="quiz-explanation" id="quiz-exp-${qi}">${q.explanation || ''}</div>
+                </div>
+            `).join('') + `
+                <button class="btn-primary" id="quiz-check-btn" style="width:100%; margin-top: 8px;" onclick="window._app.checkQuiz()">
+                    <span class="material-icons-round">check</span>
+                    <span>Sınavı Kontrol Et</span>
+                </button>
+            `;
+        },
+
+        selectQuizOption(qi, oi) {
+            // Eğer zaten cevaplandıysa (kontrol edildi) değişiklik yapma
+            if (this.quizChecked) return;
+
+            this.quizAnswers[qi] = oi;
+
+            // Seçimi güncelle
+            document.querySelectorAll(`[data-q="${qi}"]`).forEach(btn => btn.classList.remove('selected'));
+            document.querySelector(`[data-q="${qi}"][data-o="${oi}"]`).classList.add('selected');
+        },
+
+        quizChecked: false,
+
+        checkQuiz() {
+            this.quizChecked = true;
+            let score = 0;
+
+            this.quizQuestions.forEach((q, qi) => {
+                const userAnswer = this.quizAnswers[qi];
+                const correct = q.correct_answer;
+
+                document.querySelectorAll(`[data-q="${qi}"]`).forEach((btn, oi) => {
+                    btn.disabled = true;
+                    if (oi === correct) btn.classList.add('correct');
+                    if (userAnswer === oi && oi !== correct) btn.classList.add('wrong');
+                });
+
+                if (userAnswer === correct) score++;
+
+                // Açıklamayı göster
+                $(`quiz-exp-${qi}`).classList.add('visible');
+            });
+
+            // Sonucu göster
+            const total = this.quizQuestions.length;
+            const pct = Math.round((score / total) * 100);
+
+            $('quiz-score-num').textContent = pct;
+            $('quiz-result-text').textContent = pct >= 80 ? 'Harika! 🎉' : pct >= 50 ? 'İyi gidiyorsun! 💪' : 'Biraz daha çalışmalısın 📚';
+            $('quiz-result-detail').textContent = `${total} sorudan ${score} tanesini doğru cevapladın.`;
+
+            // Sonucu göster
+            const checkBtn = document.querySelector('#quiz-check-btn');
+            if (checkBtn) checkBtn.style.display = 'none';
+            $('quiz-result').classList.add('active');
+
+            // Backend'e kaydetme işlemi iptal edildi
+            // Quiz sonuçları artık kaydedilmiyor
+        },
+
+        resetQuiz() {
+            this.quizQuestions = [];
+            this.quizAnswers = {};
+            this.quizChecked = false;
+            $('quiz-questions-container').classList.remove('active');
+            $('quiz-questions-container').innerHTML = '';
+            $('quiz-result').classList.remove('active');
+            $('quiz-form-container').style.display = 'block';
+        },
+
+        // -------------------------------------------
+        // DERS KOÇU (AI COACH)
+        // -------------------------------------------
+        async sendCoachMessage() {
+            const input = $('coach-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            input.value = '';
+
+            // Kullanıcı mesajını ekle
+            this.addChatBubble(message, 'user');
+
+            // Yazıyor animasyonu
+            const typingId = this.addTypingIndicator();
+
+            try {
+                const result = await api.post('/coach/chat', {
+                    message,
+                    history: this.chatHistory.slice(-10),
+                });
+
+                this.showXpToast(result.xp_notification);
+
+                this.removeTypingIndicator(typingId);
+
+                this.addChatBubble(result.reply, 'ai');
+
+                this.chatHistory.push({ role: 'user', content: message });
+                this.chatHistory.push({ role: 'assistant', content: result.reply });
+
+                this.refreshProfile();
+            } catch (err) {
+                this.removeTypingIndicator(typingId);
+                if (err.status === 429) {
+                    this.handleQuotaError(err, 'AI Koç Mesajları');
+                } else {
+                    this.addChatBubble('Bir hata oluştu. Lütfen tekrar dene.', 'ai');
+                }
+            }
+        },
+
+        addChatBubble(text, type) {
+            const container = $('chat-messages');
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${type}`;
+            bubble.innerHTML = type === 'ai' ? renderMarkdown(text) : text;
+            container.appendChild(bubble);
+            container.scrollTop = container.scrollHeight;
+        },
+
+        addTypingIndicator() {
+            const container = $('chat-messages');
+            const id = 'typing-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'typing-indicator';
+            div.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+            return id;
+        },
+
+        removeTypingIndicator(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        },
+
+        clearChat() {
+            $('chat-messages').innerHTML = '';
+            this.chatHistory = [];
+        },
+
+        // -------------------------------------------
+        // PROFİL & KOTA YENİLEME
+        // -------------------------------------------
+        async refreshProfile() {
+            try {
+                const profile = await api.get('/profile/');
+                this.user = profile.user;
+                this.quotas = profile.quotas;
+                localStorage.setItem(CONFIG.USER_KEY, JSON.stringify(this.user));
+                this.updateUI();
+            } catch (e) {
+                console.warn('Profil yenilenemedi:', e);
+            }
+        },
+
+        // -------------------------------------------
+        // KOTA HATA YÖNETİMİ
+        // -------------------------------------------
+        handleQuotaError(err, featureName) {
+            if (err.status === 429) {
+                const data = err.data || {};
+                const limit = data.limit || '?';
+                const planType = data.plan_type === 'PLUS' ? 'Plus' : 'Ücretsiz';
+                $('quota-modal-text').innerHTML =
+                    `Günlük ${featureName} limitinizi doldurdunuz (Limit: ${limit}/gün).<br>` +
+                    (data.plan_type !== 'PLUS' ? 'Daha fazla kullanım için Plus Plan\'a yükseltin!' : 'Yarın tekrar deneyebilirsiniz.');
+                $('quota-modal').classList.add('active');
+            } else {
+                const msg = err?.data?.detail || err?.data || 'Bir hata oluştu.';
+                alert(typeof msg === 'string' ? msg : 'İşlem başarısız oldu.');
+            }
+        },
+
+        // -------------------------------------------
+        // SERVICE WORKER KAYDI
+        // -------------------------------------------
+        registerSW() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    regs.forEach(reg => reg.unregister());
+                });
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('sw2.js?v=' + Date.now())
+                        .then(reg => {
+                            console.log('SW registered:', reg.scope);
+                            if (reg.active) {
+                                reg.active.postMessage({ type: 'SKIP_WAITING' });
+                            }
+                        })
+                        .catch(err => console.warn('SW registration failed:', err));
+                });
+            }
+
+            if ('Notification' in window && Notification.permission === 'default') {
+                document.addEventListener('click', function askNotif() {
+                    Notification.requestPermission();
+                    document.removeEventListener('click', askNotif);
+                }, { once: true });
+            }
+        },
+    };
+
+    // Global erişim (onclick handler'lar için)
+    window._app = App;
+
+    // Uygulama başlat
+    App.init();
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "name": "Studify - AI Study Companion",
+  "short_name": "Studify",
+  "description": "Yapay zeka destekli akıllı ders çalışma ve verimlilik asistanı",
+  "start_url": "/?v=3",
+  "display": "standalone",
+  "background_color": "#09090E",
+  "theme_color": "#7C4DFF",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
