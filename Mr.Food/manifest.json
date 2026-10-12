@@ -1,0 +1,16 @@
+{
+  "name": "Mr.Food",
+  "short_name": "Mr.Food",
+  "description": "Yapay Zeka Destekli Tarif Uygulaması",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#161616",
+  "theme_color": "#161616",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,3051 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#161616">
+    <meta name="msapplication-TileColor" content="#161616">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mr.Food">
+    <title>Mr.Food</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/x-icon" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg-color: #161616;
+            --surface-color: #222222;
+            --surface-light: #2a2a2a;
+            --primary-color: #FFB300;
+            --primary-hover: #e09e00;
+            --text-main: #ffffff;
+            --text-secondary: #a0a0a0;
+            --error-color: #ff5252;
+            --success-color: #4CAF50;
+            --border-color: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden;
+            background-color: #161616 !important;
+            background: #161616 !important;
+            width: 100vw;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        body {
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            overscroll-behavior: none;
+            min-height: 100vh;
+            min-height: 100dvh;
+            height: 100%;
+            background-color: #161616 !important;
+            background: #161616 !important;
+        }
+        input, textarea, button, select {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            gap: 20px;
+        }
+        #splash-screen .splash-logo {
+            background-color: var(--primary-color);
+            width: 80px;
+            height: 80px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: splashPulse 1.5s ease-in-out infinite;
+        }
+        #splash-screen .splash-logo i {
+            font-size: 42px;
+            color: #111;
+        }
+        #splash-screen .splash-title {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        #splash-screen .splash-spinner {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes splashPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,179,0,0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(255,179,0,0); }
+        }
+        .splash-hide {
+            animation: splashFade 0.4s ease forwards;
+        }
+        @keyframes splashFade {
+            to { opacity: 0; pointer-events: none; }
+        }
+        /* Utility */
+        .text-primary { color: var(--primary-color); }
+        .text-success { color: var(--success-color); }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .gap-2 { gap: 8px; }
+        .gap-3 { gap: 12px; }
+        .gap-4 { gap: 16px; }
+        .mt-2 { margin-top: 8px; }
+        .mt-4 { margin-top: 16px; }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-4 { margin-bottom: 16px; }
+        .w-full { width: 100%; }
+        .hidden { display: none !important; }
+
+        /* Layout */
+        #app-scroll {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding-top: max(env(safe-area-inset-top), 0px);
+            padding-bottom: max(env(safe-area-inset-bottom), 0px);
+            background-color: var(--bg-color);
+        }
+        /* Force dark bg in Web Viewer safe areas */
+        #app-scroll::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: env(safe-area-inset-top);
+            background: #161616;
+            z-index: 9998;
+        }
+        #app-scroll::after {
+            content: '';
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: env(safe-area-inset-bottom);
+            background: #161616;
+            z-index: 9998;
+        }
+        .container {
+            padding: 24px;
+            padding-bottom: calc(100px + env(safe-area-inset-bottom));
+            display: none;
+            animation: fadeInScale 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .container.active {
+            display: block;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translateY(15px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Logo & Header */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-icon-bg {
+            background-color: var(--primary-color);
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        .logo-icon-bg i {
+            font-size: 32px;
+            color: #111;
+        }
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .logo-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Login Card */
+        .auth-card {
+            background-color: var(--surface-color);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+        }
+        .auth-toggle {
+            display: flex;
+            background-color: var(--bg-color);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .auth-tab.active {
+            background-color: var(--primary-color);
+            color: #111;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-wrapper i.left-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--primary-color);
+            font-size: 20px;
+        }
+        .input-wrapper i.right-icon {
+            position: absolute;
+            right: 16px;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: 15px;
+            transition: border 0.2s;
+        }
+        .input-wrapper.has-left-icon input {
+            padding-left: 48px;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        input::placeholder {
+            color: #888;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: 15px;
+            transition: border 0.2s;
+        }
+        input[type="number"]::placeholder {
+            color: #888;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--primary-color);
+            color: #111;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%, -50%);
+            transform-origin: 50% 50%;
+        }
+        .btn:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+        @keyframes ripple {
+            0% { transform: scale(0, 0); opacity: 0.5; }
+            100% { transform: scale(40, 40); opacity: 0; }
+        }
+        .btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 2px 5px rgba(255, 179, 0, 0.2);
+        }
+        .btn-pulse {
+            animation: pulse-orange 2s infinite;
+        }
+        @keyframes pulse-orange {
+            0% { box-shadow: 0 0 0 0 rgba(255, 179, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 179, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 179, 0, 0); }
+        }
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+        .btn-sm {
+            width: auto;
+            padding: 8px 14px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        /* Footer Auth */
+        .auth-footer {
+            text-align: center;
+            color: #555;
+            font-size: 12px;
+            margin-top: 24px;
+        }
+
+        /* Daily Limit Card */
+        .limit-card {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+        .limit-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        .limit-header span.count {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .progress-bar-bg {
+            background-color: #333333;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            background-color: var(--primary-color);
+            height: 6px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Toggle Switch */
+        .switch-card {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .switch-icon-bg {
+            background-color: var(--surface-light);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        .switch-icon-bg i {
+            font-size: 20px;
+            color: var(--text-secondary);
+        }
+        .switch-info {
+            flex: 1;
+        }
+        .switch-title {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .switch-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Recipe Card UI (Home) */
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 24px 0 16px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .section-link {
+            color: var(--primary-color);
+            font-size: 13px;
+            text-decoration: none;
+        }
+        .recipe-preview-card {
+            background-color: var(--surface-color);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .recipe-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .rp-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .rp-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .rp-tags {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-end;
+        }
+        .tag {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .tag-orange { background-color: rgba(255, 179, 0, 0.15); color: var(--primary-color); border: 1px solid rgba(255,179,0,0.3); }
+        .tag-green { background-color: rgba(76, 175, 80, 0.15); color: var(--success-color); border: 1px solid rgba(76,175,80,0.3); }
+        
+        .rp-toggle-content {
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .rp-content {
+            margin-top: 16px;
+            display: none;
+        }
+        .rp-content.show {
+            display: block;
+        }
+        .rp-section-heading {
+            color: var(--primary-color);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        .rp-list {
+            list-style: none;
+        }
+        .rp-list li {
+            margin-bottom: 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #ddd;
+        }
+        .rp-list li i {
+            color: var(--primary-color);
+            font-size: 18px;
+            margin-top: 2px;
+        }
+
+        /* History List Item */
+        .history-item {
+            background-color: var(--surface-color);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        .history-item:active {
+            transform: scale(0.98);
+        }
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .history-icon {
+            background-color: rgba(255, 179, 0, 0.15);
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+        .history-icon i {
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+        .history-info {
+            flex: 1;
+        }
+        .history-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .history-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .history-tags {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+        }
+        .history-tags .kcal { color: var(--primary-color); display: flex; align-items: center; justify-content: flex-end; gap: 4px;}
+        .history-tags .diet { color: var(--success-color); display: flex; align-items: center; justify-content: flex-end; gap: 4px;}
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 calc(20px + env(safe-area-inset-bottom, 0px)) 0;
+            z-index: 1000;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 8px;
+            gap: 1px;
+            cursor: pointer;
+            transition: color 0.2s;
+            flex: 1;
+            min-width: 0;
+        }
+        .nav-item span {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .nav-icon-wrapper {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+        .nav-item i {
+            font-size: 18px;
+        }
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+        .nav-item.active-create .nav-icon-wrapper {
+            background-color: var(--primary-color);
+        }
+        .nav-item.active-create i {
+            color: #111;
+        }
+
+        /* Yemek Öner Kartı */
+        .food-suggest-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            animation: cardPop 0.35s cubic-bezier(.34,1.56,.64,1);
+        }
+        @keyframes cardPop {
+            from { opacity: 0; transform: scale(0.88) translateY(16px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .food-suggest-name {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+        .food-suggest-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .food-suggest-badge.diet {
+            background: rgba(76,175,80,0.13);
+            color: var(--success-color);
+            border: 1px solid rgba(76,175,80,0.3);
+        }
+        .food-suggest-badge.normal {
+            background: rgba(255,193,7,0.13);
+            color: #c89000;
+            border: 1px solid rgba(255,193,7,0.3);
+        }
+        /* Message */
+        .msg-box {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            text-align: center;
+            font-size: 13px;
+        }
+        .msg-error { background: rgba(255, 82, 82, 0.1); color: var(--error-color); border: 1px solid rgba(255,82,82,0.3); }
+        .msg-success { background: rgba(76, 175, 80, 0.1); color: var(--success-color); border: 1px solid rgba(76,175,80,0.3); }
+
+        /* Loading */
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* ChefBot */
+        .chefbot-bubble {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .chefbot-bubble.user {
+            flex-direction: row-reverse;
+        }
+        .bubble-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--surface-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+        .chefbot-bubble.user .bubble-avatar {
+            background: var(--primary-color);
+            color: #111;
+        }
+        .bubble-text {
+            max-width: 78%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+        }
+        .chefbot-bubble.user .bubble-text {
+            background: var(--primary-color);
+            color: #111;
+            border-color: var(--primary-color);
+            font-weight: 500;
+        }
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            padding: 14px 16px;
+        }
+        .typing-dots span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            animation: blink 1.2s infinite;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Streak Toast Bildirimi */
+        #streak-toast {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 99999;
+            background: linear-gradient(135deg, #ff6b35, #ff8c00);
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 20px rgba(255,107,53,0.45);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+
+        /* Fotoğrafla Kalori Ölçer */
+        .photo-upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--surface-color);
+            margin-bottom: 16px;
+        }
+        .photo-upload-area:hover {
+            border-color: var(--primary-color);
+            background: var(--surface-light);
+        }
+        .photo-upload-area i {
+            font-size: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        .photo-upload-area.has-image {
+            padding: 8px;
+            border-style: solid;
+            cursor: default;
+        }
+        .photo-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+        .photo-result-card {
+            background: var(--surface-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 16px;
+            animation: cardPop 0.35s cubic-bezier(.34,1.56,.64,1);
+        }
+        .photo-result-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+        }
+        .photo-result-cal {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 16px;
+        }
+        .photo-result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .photo-result-item {
+            background: var(--bg-color);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        .photo-result-item .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .photo-result-item .label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .photo-result-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+        }
+
+        /* Lider Tablosu */
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+        .leaderboard-item.current-user {
+            border-color: var(--primary-color);
+            background: rgba(255, 179, 0, 0.08);
+        }
+        .leaderboard-rank {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .leaderboard-rank.top1 { background: #FFD700; color: #111; }
+        .leaderboard-rank.top2 { background: #C0C0C0; color: #111; }
+        .leaderboard-rank.top3 { background: #CD7F32; color: #111; }
+        .leaderboard-rank.other { background: var(--surface-light); color: var(--text-secondary); }
+        .leaderboard-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .leaderboard-name {
+            font-weight: 600;
+            font-size: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .leaderboard-level {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .leaderboard-xp {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary-color);
+            white-space: nowrap;
+        }
+        .leaderboard-user-rank {
+            text-align: center;
+            padding: 20px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            margin-top: 16px;
+        }
+        .leaderboard-user-rank .rank-num {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+        .leaderboard-user-rank .rank-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+    </style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+
+    <!-- Toast Bildirimleri -->
+    <div id="streak-toast">🔥 <span id="streak-toast-text">Seri arttı!</span></div>
+    <div id="app-toast" style="position:fixed; top:16px; right:16px; z-index:99999; display:none; align-items:center; gap:8px; padding:10px 16px; border-radius:14px; font-size:14px; font-weight:600; box-shadow:0 4px 20px rgba(0,0,0,0.3); pointer-events:none; transition:opacity 0.3s ease, transform 0.3s ease;"></div>
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen">
+        <div class="splash-logo">
+            <i class="ph ph-chef-hat"></i>
+        </div>
+        <div class="splash-title">mr.<span class="text-primary">food</span></div>
+        <div class="splash-spinner"></div>
+    </div>
+
+    <div id="app-scroll">
+    <!-- LOGIN PAGE -->
+    <div id="login-container" class="container active">
+        <div style="height: 40px;"></div> <!-- Spacer -->
+        <div class="logo-container">
+            <div class="logo-icon-bg">
+                <i class="ph ph-chef-hat"></i>
+            </div>
+            <div class="logo-text">mr.<span class="text-primary">food</span></div>
+            <div class="logo-subtitle">Yapay Zeka ile Tarif Oluştur</div>
+        </div>
+
+        <div class="auth-card">
+            <div class="auth-toggle">
+                <div class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Giriş Yap</div>
+                <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Kayıt Ol</div>
+            </div>
+
+            <div id="auth-msg" class="msg-box"></div>
+
+            <!-- Login Form -->
+            <div id="form-login">
+                <div class="form-group">
+                    <label>Kullanıcı Adı</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="login-username" placeholder="Kullanıcı adınız">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Şifre</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="login-password" placeholder="••••••••">
+                        <i class="ph ph-eye right-icon" onclick="togglePassword('login-password')"></i>
+                    </div>
+                </div>
+                <button class="btn" onclick="handleAuth('login')">Giriş Yap</button>
+            </div>
+
+            <!-- Register Form -->
+            <div id="form-register" class="hidden">
+                <div class="form-group">
+                    <label>Ad Soyad</label>
+                    <div class="input-wrapper has-left-icon">
+                        <i class="ph ph-user left-icon"></i>
+                        <input type="text" id="register-fullname" placeholder="Adınız ve soyadınız">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Kullanıcı Adı</label>
+                    <div class="input-wrapper has-left-icon">
+                        <i class="ph ph-at left-icon"></i>
+                        <input type="text" id="register-username" placeholder="Kullanıcı adı belirleyin">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>E-posta Adresi</label>
+                    <div class="input-wrapper has-left-icon">
+                        <i class="ph ph-envelope left-icon"></i>
+                        <input type="text" id="register-email" placeholder="ornek@email.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Şifre</label>
+                    <div class="input-wrapper has-left-icon">
+                        <i class="ph ph-lock left-icon"></i>
+                        <input type="password" id="register-password" placeholder="••••••••">
+                        <i class="ph ph-eye right-icon" onclick="togglePassword('register-password')"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Hedefiniz</label>
+                    <div class="input-wrapper has-left-icon" style="gap:8px; flex-wrap:wrap;">
+                        <i class="ph ph-target left-icon" style="position:static;"></i>
+                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; flex:1; min-width:120px; padding:10px 14px; border:1px solid var(--border-color); border-radius:10px; background:var(--bg-color);" onclick="document.getElementById('goal-weight-loss').checked=true">
+                            <input type="radio" name="goal" id="goal-weight-loss" value="weight_loss" checked style="accent-color:var(--primary-color);">
+                            <span style="font-size:14px;">Kilo Verme</span>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:6px; cursor:pointer; flex:1; min-width:120px; padding:10px 14px; border:1px solid var(--border-color); border-radius:10px; background:var(--bg-color);" onclick="document.getElementById('goal-weight-gain').checked=true">
+                            <input type="radio" name="goal" id="goal-weight-gain" value="weight_gain" style="accent-color:var(--primary-color);">
+                            <span style="font-size:14px;">Kilo Alma</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Günlük Kalori Sınırı (kcal)</label>
+                    <div class="input-wrapper has-left-icon">
+                        <i class="ph ph-fire left-icon"></i>
+                        <input type="number" id="register-daily-calorie" placeholder="Örn: 2000" min="0">
+                    </div>
+                </div>
+                <button class="btn" onclick="handleAuth('register')">Kayıt Ol</button>
+            </div>
+        </div>
+        
+        <div class="auth-footer">
+            mr.food © 2025 - Tüm hakları saklıdır
+        </div>
+    </div>
+
+    <!-- HOME PAGE -->
+    <div id="home-container" class="container">
+        <div style="margin-bottom: 24px;">
+            <div style="color: var(--text-secondary); font-size: 14px;" id="greeting-text">Günaydın, Kullanıcı 👋</div>
+            <h1 style="font-size: 24px; font-weight: 700; margin-top: 4px;">Ne pişirelim <span class="text-primary">bugün?</span></h1>
+        </div>
+
+        <!-- XP / Level / Streak -->
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px;">
+            <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:12px; text-align:center;">
+                <div style="font-size:18px; font-weight:700; color:var(--primary-color);" id="home-level">Lvl 1</div>
+                <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Seviye</div>
+            </div>
+            <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:12px; text-align:center;">
+                <div style="font-size:18px; font-weight:700; color:var(--primary-color);" id="home-xp">0 XP</div>
+                <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Toplam XP</div>
+            </div>
+            <div style="background:var(--surface-color); border:1px solid var(--border-color); border-radius:12px; padding:12px; text-align:center;">
+                <div style="font-size:18px; font-weight:700; color:#ff6b35;" id="home-streak">0 🔥</div>
+                <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Seri</div>
+            </div>
+        </div>
+
+        <div class="limit-card">
+            <div class="limit-header">
+                <span>Günlük Limit</span>
+                <span class="count"><span id="home-limit-used">-</span> / 2</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="home-limit-bar"></div>
+            </div>
+        </div>
+
+        <button class="btn" onclick="switchTab('create-container', document.getElementById('nav-create'))">
+            <i class="ph ph-chef-hat" style="font-size: 20px;"></i> Yeni Tarif Oluştur
+        </button>
+
+        <div class="section-title">
+            <span>Son Oluşturulan</span>
+            <a href="#" class="section-link" onclick="switchTab('history-container', document.getElementById('nav-history')); fetchHistory(); return false;">Tümü &rarr;</a>
+        </div>
+
+        <div id="home-last-recipe">
+            <!-- Will be populated dynamically -->
+            <div style="text-align:center; padding: 20px; color: var(--text-secondary); font-size: 14px; border: 1px dashed var(--border-color); border-radius: 12px;">
+                Henüz tarif oluşturulmadı.
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE PAGE -->
+    <div id="create-container" class="container">
+        <div class="page-header">
+            <h1>Tarif <span class="text-primary">Oluştur</span></h1>
+            <p>Yapay zeka ile anında tarif öğren</p>
+        </div>
+
+        <div class="limit-card">
+            <div class="limit-header">
+                <span>Günlük Kullanım</span>
+                <span class="count"><span id="create-limit-used">-</span> / 2</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="create-limit-bar"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Yemek Adı</label>
+            <div class="input-wrapper has-left-icon">
+                <i class="ph ph-chef-hat left-icon"></i>
+                <input type="text" id="food-input" lang="tr" inputmode="text" placeholder="Örn: Mercimek Çorbası, Köfte...">
+            </div>
+        </div>
+
+        <div class="switch-card">
+            <div class="flex items-center">
+                <div class="switch-icon-bg">
+                    <i class="ph ph-leaf"></i>
+                </div>
+                <div class="switch-info">
+                    <div class="switch-title">Diyet Modu</div>
+                    <div class="switch-subtitle">Düşük kalorili tarif</div>
+                </div>
+            </div>
+            <label class="toggle-switch">
+                <input type="checkbox" id="diet-mode">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div id="create-msg" class="msg-box"></div>
+
+        <button class="btn btn-pulse" id="generate-btn" onclick="generateRecipe()" style="background-color: #9c7300; color: #fff;">
+            <i class="ph ph-sparkle"></i> Tarif Oluştur
+        </button>
+        
+        <div id="loading-indicator" class="flex items-center justify-center gap-2 mt-4 hidden">
+            <div class="spinner"></div>
+            <span style="color: var(--primary-color); font-size: 14px;">Hazırlanıyor...</span>
+        </div>
+    </div>
+
+    <!-- HISTORY PAGE -->
+    <div id="history-container" class="container">
+        <div class="flex justify-between items-center mb-4">
+            <div style="flex:1"></div>
+            <div class="page-header" style="margin-bottom: 0; flex: 2;">
+                <h1 style="display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="ph ph-clock text-primary"></i> Tarif <span class="text-primary">Geçmişi</span>
+                </h1>
+                <p id="history-count">0 tarif oluşturuldu</p>
+            </div>
+            <div style="flex:1; text-align:right;">
+                <i class="ph ph-arrows-clockwise" style="font-size:20px; color:var(--text-secondary); cursor:pointer;" onclick="fetchHistory()"></i>
+            </div>
+        </div>
+
+        <div id="history-list">
+            <!-- Populated dynamically -->
+        </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="profile-container" class="container">
+        <div class="page-header">
+            <h1><span class="text-primary">Profil</span> & Ayarlar</h1>
+        </div>
+        <div class="auth-card" style="margin-top:20px;">
+            <div class="flex items-center gap-4 mb-4 pb-4" style="border-bottom: 1px solid var(--border-color);">
+                <div style="width:50px; height:50px; background:var(--surface-light); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                    <i class="ph ph-user" style="font-size:24px; color:var(--text-secondary);"></i>
+                </div>
+                <div>
+                    <div style="font-weight:600; font-size:16px;" id="profile-username">Kullanıcı</div>
+                    <div style="font-size:13px; color:var(--text-secondary);" id="profile-plan">Ücretsiz Plan</div>
+                </div>
+            </div>
+
+            <!-- XP / Level / Streak -->
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px;">
+                <div style="background:var(--surface-light); border-radius:12px; padding:12px; text-align:center;">
+                    <div style="font-size:20px; font-weight:700; color:var(--primary-color);" id="profile-level">Lvl 1</div>
+                    <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Seviye</div>
+                </div>
+                <div style="background:var(--surface-light); border-radius:12px; padding:12px; text-align:center;">
+                    <div style="font-size:20px; font-weight:700; color:var(--primary-color);" id="profile-xp">0 XP</div>
+                    <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Toplam XP</div>
+                </div>
+                <div style="background:var(--surface-light); border-radius:12px; padding:12px; text-align:center;">
+                    <div style="font-size:20px; font-weight:700; color:#ff6b35;" id="profile-streak">0 🔥</div>
+                    <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">Seri</div>
+                </div>
+            </div>
+
+            <!-- XP Progress Bar -->
+            <div style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-secondary); margin-bottom:6px;">
+                    <span>Sonraki seviyeye</span>
+                    <span id="profile-xp-progress">0 / 100 XP</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="profile-xp-bar" style="width:0%;"></div>
+                </div>
+            </div>
+
+            <!-- Promosyon Kodu -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 16px; margin-bottom: 16px;">
+                <div style="font-size:14px; font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                    <i class="ph ph-ticket text-primary"></i> Promosyon Kodu Kullan
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:nowrap;">
+                    <input type="text" id="promo-code-input" class="input" placeholder="Kodu girin" style="flex:1; min-width:100px; text-transform:uppercase;" maxlength="30">
+                    <button class="btn" id="promo-redeem-btn" onclick="redeemPromoCode()" style="width:auto; padding:12px 18px; white-space:nowrap; flex-shrink:0;">
+                        <i class="ph ph-gift"></i> Kullan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Daily Calorie Goal -->
+            <div style="border-top: 1px solid var(--border-color); padding-top: 16px; margin-bottom: 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size:13px; color:var(--text-secondary);">Günlük Kalori Hedefi</div>
+                        <div style="font-size:20px; font-weight:700; color:var(--primary-color);" id="profile-calorie-goal">-- kcal</div>
+                    </div>
+                    <button class="btn btn-sm" onclick="editCalorieGoal()" id="edit-calorie-btn">
+                        <i class="ph ph-pencil"></i> Düzenle
+                    </button>
+                </div>
+                <div id="edit-calorie-form" class="hidden" style="margin-top:12px;">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <input type="number" id="edit-calorie-input" class="input" placeholder="Günlük kalori hedefi" style="flex:1; min-width:120px;">
+                        <button class="btn" onclick="saveCalorieGoal()">Kaydet</button>
+                        <button class="btn btn-outline" onclick="cancelEditCalorie()">İptal</button>
+                    </div>
+                    <div id="edit-calorie-msg" style="font-size:12px; margin-top:4px;"></div>
+                </div>
+            </div>
+
+            <!-- Plus Membership -->
+            <div id="plus-non-member">
+                <div style="border-top: 1px solid var(--border-color); padding-top: 16px; margin-bottom: 16px;"></div>
+                <div style="text-align:center;">
+                    <i class="ph ph-crown text-primary" style="font-size: 36px; margin-bottom: 8px;"></i>
+                    <h3 style="font-size:18px; margin-bottom:12px;">Mr.Food <span class="text-primary">Plus</span></h3>
+                    <p style="color:var(--text-secondary); font-size:13px; margin-bottom:16px;">Sınırları kaldırın, ayrıcalıkları yaşayın</p>
+                    <div style="font-size:28px; font-weight:700; margin: 12px 0;">$10 <span style="font-size:14px; color:var(--text-secondary); font-weight:normal;">/ ay</span></div>
+                    <div style="text-align:left; color:#ddd; font-size:13px; line-height:2.2; margin: 16px 0;">
+                        <div><i class="ph ph-check text-primary"></i> 10 KAT FAZLA tarif oluşturma hakkı</div>
+                        <div><i class="ph ph-check text-primary"></i> 10 KAT FAZLA ChefBot mesaj hakkı</div>
+                        <div><i class="ph ph-check text-primary"></i> 10 KAT FAZLA kalori analizi hakkı</div>
+                        <div><i class="ph ph-check text-primary"></i> Haiku 4.5 ile daha kaliteli tarif üretimi</div>
+                        <div><i class="ph ph-check text-primary"></i> REKLAM YOK!</div>
+                    </div>
+                    <button class="btn" style="margin-bottom:8px;">Hemen Yükselt</button>
+                </div>
+            </div>
+            <div id="plus-member" class="hidden text-center" style="border-top: 1px solid var(--border-color); padding-top: 16px;">
+                <i class="ph ph-crown text-primary" style="font-size: 40px; margin-bottom: 8px;"></i>
+                <h3 style="font-size:16px; margin-bottom:8px;">PLUS ÜYELİĞİN AYRICALIKLARINDAN FAYDALANMAKTASINIZ!</h3>
+                <p style="color:var(--text-secondary); font-size:13px; margin:4px 0;">10 KAT FAZLA TARİF ÜRETME HAKKI</p>
+                <p style="color:var(--text-secondary); font-size:13px; margin:4px 0;">10 KAT FAZLA CHEFBOT MESAJ HAKKI</p>
+                <p style="color:var(--text-secondary); font-size:13px; margin:4px 0;">10 KAT FAZLA KALORİ ANALİZİ HAKKI</p>
+                <p style="color:var(--text-secondary); font-size:13px; margin:4px 0;">HAIKU 4.5 İLE DAHA KALITELİ TARIF ÜRETIMI</p>
+                <p style="color:var(--text-secondary); font-size:13px; margin:4px 0;">REKLAM YOK</p>
+            </div>
+
+            <button class="btn btn-outline" style="color: var(--error-color); border-color: var(--error-color); margin-top:16px;" onclick="logout()">
+                <i class="ph ph-sign-out"></i> Çıkış Yap
+            </button>
+        </div>
+    </div>
+
+    <!-- CALORIE PAGE -->
+    <div id="calorie-container" class="container">
+        <div class="page-header">
+            <h1><i class="ph ph-fire text-primary"></i> Günlük <span class="text-primary">Kalori</span></h1>
+            <p>Bugün ne kadar yedin takip et</p>
+        </div>
+
+        <!-- Günlük Kalori İlerleme -->
+        <div class="auth-card mb-4" id="food-entry-card">
+            <div style="font-weight:600; font-size:14px; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                <i class="ph ph-bowl-food text-primary" style="font-size:20px;"></i> Bugün Tüketilen
+            </div>
+
+            <!-- İlerleme Çubuğu -->
+            <div id="food-entry-progress-wrap" style="margin-bottom:16px;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-secondary); margin-bottom:6px;">
+                    <span id="food-entry-total">0 kcal</span>
+                    <span id="food-entry-goal">Hedef: --</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="food-entry-bar" style="width:0%; background: var(--primary-color);"></div>
+                </div>
+            </div>
+
+            <!-- Yeni yiyecek ekle -->
+            <div style="display:flex; gap:8px; margin-bottom:8px;">
+                <input type="number" id="food-entry-calories" placeholder="Kalori (kcal)" min="0" style="flex:0 0 100px; padding:12px; border-radius:12px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px;">
+                <input type="text" id="food-entry-desc" lang="tr" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Ne yedin? (opsiyonel)" style="flex:1; padding:12px; border-radius:12px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; min-width:0;">
+                <button onclick="addFoodEntry()" style="background:var(--primary-color); border:none; border-radius:12px; width:46px; height:46px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+                    <i class="ph ph-plus" style="font-size:20px; color:#111;"></i>
+                </button>
+            </div>
+            <div id="food-entry-msg" class="msg-box" style="margin-top:0;"></div>
+
+            <!-- Bugünkü yiyecek listesi -->
+            <div id="food-entry-list">
+                <div style="text-align:center; color:var(--text-secondary); font-size:13px; padding:16px; border:1px dashed var(--border-color); border-radius:10px;">
+                    Henüz yiyecek eklenmedi.
+                </div>
+            </div>
+        </div>
+
+        <!-- ChefBot Banner -->
+        <div style="background: linear-gradient(135deg, var(--surface-color), var(--bg-color)); border:1px solid var(--primary-color); border-radius:14px; padding:14px 16px; margin-bottom:16px; display:flex; align-items:center; gap:12px;">
+            <i class="ph ph-robot text-primary" style="font-size:28px; flex-shrink:0;"></i>
+            <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">
+                <span style="color:var(--text-main); font-weight:600;">Bazal Yakımınızı Bilmiyor musunuz?</span><br>
+                <a href="#" onclick="switchTab('chefbot-container', document.getElementById('nav-chefbot')); return false;" style="color:var(--primary-color); text-decoration:none; font-weight:600;">ChefBot</a>'a
+                <span style="background:var(--bg-color); border:1px solid var(--border-color); border-radius:6px; padding:1px 6px; font-size:12px; font-family:monospace;">"Bazal Yakımımı Öğrenmek İstiyorum"</span>
+                yazmanız yeterli!
+            </div>
+        </div>
+
+        <!-- Bugünkü Hesap Kartı -->
+        <div class="auth-card mb-4">
+            <div style="font-weight:600; font-size:14px; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                <i class="ph ph-calculator text-primary" style="font-size:20px;"></i> Bugünkü Değerler
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Bazal Yakım (kcal)</label>
+                    <input type="number" id="cal-bmr" placeholder="1800" min="0" style="padding:12px;">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Aktif Yakım (kcal)</label>
+                    <input type="number" id="cal-active" placeholder="300" min="0" style="padding:12px;">
+                </div>
+                <div class="form-group" style="margin-bottom:0; grid-column: 1 / -1;">
+                    <label>Alınan Kalori (kcal)</label>
+                    <input type="number" id="cal-intake" placeholder="2000" min="0" style="padding:12px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom:14px;">
+                <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:4px;">Tarih (bugün değilse seçin)</label>
+                <input type="date" id="cal-deficit-date" style="width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:13px;">
+            </div>
+
+            <button class="btn btn-pulse" id="calorie-save-btn" onclick="saveCalorieLog()" style="font-size:14px;">
+                <i class="ph ph-chart-bar"></i> Hesapla & Kaydet
+            </button>
+            <div id="calorie-msg" class="msg-box" style="margin-top:8px;"></div>
+        </div>
+
+        <!-- Toplam Yakılan Kalori Açığı -->
+        <div id="calorie-total-card" style="display:none; background: linear-gradient(135deg, var(--surface-color), var(--bg-color)); border:1px solid var(--primary-color); border-radius:14px; padding:16px 18px; margin-bottom:16px;">
+            <div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                <i class="ph ph-sigma text-primary"></i> Şimdiye Kadar Toplam Kalori Açığı
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div style="background:var(--bg-color); border-radius:10px; padding:12px; text-align:center; border:1px solid var(--border-color);">
+                    <div style="font-size:22px; font-weight:800;" id="calorie-total-kcal">0</div>
+                    <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">kcal açık</div>
+                </div>
+                <div style="background:var(--bg-color); border-radius:10px; padding:12px; text-align:center; border:1px solid var(--border-color);">
+                    <div style="font-size:22px; font-weight:800;" id="calorie-total-kg">0.00</div>
+                    <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">kg yağ</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tablo -->
+        <div style="font-weight:600; font-size:15px; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <i class="ph ph-table text-primary"></i> Kalori Açığı Tablosu
+        </div>
+        <div id="calorie-log-list">
+            <div style="text-align:center; color:var(--text-secondary); font-size:14px; padding:20px; border:1px dashed var(--border-color); border-radius:12px;">
+                Henüz kayıt yok.
+            </div>
+        </div>
+    </div>
+
+    <!-- CHEFBOT PAGE -->
+    <div id="chefbot-container" class="container"><!-- boş, overlay ayrı --></div>
+
+    <!-- ChefBot overlay (position fixed, WhatsApp tarzı) -->
+    <div id="chefbot-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:1001; background:var(--bg-color); flex-direction:column;">
+
+        <!-- Başlık -->
+        <div style="padding:16px 20px 12px; border-bottom:1px solid var(--border-color); flex-shrink:0; text-align:center;">
+            <div style="font-size:20px; font-weight:700;"><i class="ph ph-robot text-primary"></i> Chef<span class="text-primary">Bot</span></div>
+            <div style="font-size:12px; color:var(--text-secondary);">Diyetisyen & Kalori Danışmanın</div>
+        </div>
+
+        <!-- Limit bar -->
+        <div id="chefbot-limit-bar-wrap" class="limit-card" style="margin:10px 16px 0; flex-shrink:0;">
+            <div class="limit-header">
+                <span>Günlük Mesaj Hakkı</span>
+                <span class="count"><span id="chefbot-used">-</span> / <span id="chefbot-limit">5</span></span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="chefbot-bar"></div>
+            </div>
+        </div>
+
+        <!-- Mesajlar (scroll eden alan) -->
+        <div id="chefbot-messages" style="flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px;">
+            <div class="chefbot-bubble bot" id="chefbot-welcome">
+                <div class="bubble-avatar"><i class="ph ph-robot"></i></div>
+                <div class="bubble-text">Merhaba! Ben ChefBot, diyetisyen asistanınım 🥗<br>Yemeklerin kalori değerlerini sorabilir, diyet tavsiyeleri alabilirsiniz. Tarif için ise <b>Oluştur</b> sekmesini kullanın.</div>
+            </div>
+        </div>
+
+        <!-- Yazıyor animasyonu -->
+        <div id="chefbot-typing" style="display:none; padding:0 16px 8px; flex-shrink:0;">
+            <div class="chefbot-bubble bot">
+                <div class="bubble-avatar"><i class="ph ph-robot"></i></div>
+                <div class="bubble-text typing-dots"><span></span><span></span><span></span></div>
+            </div>
+        </div>
+
+        <!-- Input barı (sabit altta, nav bar üstünde) -->
+        <div style="flex-shrink:0; padding:10px 16px 12px; border-top:1px solid var(--border-color); background:var(--bg-color);">
+            <div style="display:flex; gap:8px; align-items:flex-end; max-width:600px; margin:0 auto;">
+                <textarea id="chefbot-input" lang="tr" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Bir şey sor..." rows="1"
+                    style="flex:1; padding:12px 16px; border-radius:14px; border:1px solid var(--border-color); background:var(--surface-color); color:var(--text-main); font-size:14px; resize:none; font-family:inherit; line-height:1.4; max-height:120px; overflow-y:auto;"
+                    onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault(); sendChefBotMessage();}"></textarea>
+                <button onclick="sendChefBotMessage()" style="background:var(--primary-color); border:none; border-radius:14px; width:46px; height:46px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+                    <i class="ph ph-paper-plane-tilt" style="font-size:20px; color:#111;"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Nav bar kopyası (overlay içinde) -->
+        <nav style="flex-shrink:0; background:var(--bg-color); border-top:1px solid var(--border-color); display:flex; justify-content:space-around; padding:10px 0 20px 0;">
+            <div class="nav-item" onclick="switchTab('home-container', document.getElementById('nav-home'))">
+                <div class="nav-icon-wrapper"><i class="ph ph-house"></i></div>
+                <span>Ana Sayfa</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('create-container', document.getElementById('nav-create'))">
+                <div class="nav-icon-wrapper"><i class="ph ph-chef-hat"></i></div>
+                <span>Oluştur</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('history-container', document.getElementById('nav-history')); fetchHistory();">
+                <div class="nav-icon-wrapper"><i class="ph ph-clock-counter-clockwise"></i></div>
+                <span>Geçmiş</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('calorie-container', document.getElementById('nav-calorie')); loadCaloriePage();">
+                <div class="nav-icon-wrapper"><i class="ph ph-fire"></i></div>
+                <span>Kalori</span>
+            </div>
+            <div class="nav-item active" style="color:var(--primary-color);">
+                <div class="nav-icon-wrapper"><i class="ph ph-robot"></i></div>
+                <span>ChefBot</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('suggest-container', document.getElementById('nav-suggest')); loadFoodSuggestLimit();">
+                <div class="nav-icon-wrapper"><i class="ph ph-shuffle"></i></div>
+                <span>Öner</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('calorie-photo-container', document.getElementById('nav-calphoto')); loadCaloriePhotoLimit();">
+                <div class="nav-icon-wrapper"><i class="ph ph-camera"></i></div>
+                <span>Kalori Ölç</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('leaderboard-container', document.getElementById('nav-leaderboard')); fetchLeaderboard();">
+                <div class="nav-icon-wrapper"><i class="ph ph-trophy"></i></div>
+                <span>Lider</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('profile-container', document.getElementById('nav-profile'))">
+                <div class="nav-icon-wrapper"><i class="ph ph-user"></i></div>
+                <span>Profil</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div id="suggest-container" class="container">
+        <div class="page-header">
+            <div>
+                <div style="font-size:22px; font-weight:700; color:var(--text-primary);">Bana Yemek Öner 🎲</div>
+                <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">Rastgele bir yemek keşfet</div>
+            </div>
+        </div>
+
+        <div class="limit-card" id="suggest-limit-card" style="margin-bottom:20px;">
+            <div class="limit-header">
+                <span>Günlük Öneri Hakkı</span>
+                <span class="count"><span id="suggest-used">-</span> / <span id="suggest-limit-max">2</span></span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="suggest-limit-bar" style="width:0%"></div>
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-color); border:1px solid var(--border-color); border-radius:14px; padding:14px 18px; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="ph ph-leaf" style="font-size:20px; color:var(--success-color);"></i>
+                <div>
+                    <div style="font-size:14px; font-weight:600; color:var(--text-primary);">Diyet Modu</div>
+                    <div style="font-size:12px; color:var(--text-secondary);">Sadece diyet yemeklerinden öner</div>
+                </div>
+            </div>
+            <label style="position:relative; display:inline-block; width:46px; height:26px;">
+                <input type="checkbox" id="suggest-diet-toggle" style="width:46px; height:26px; appearance:none; -webkit-appearance:none; background:var(--border-color); border-radius:26px; cursor:pointer; transition:0.3s; position:relative; flex-shrink:0;"
+                    onchange="this.style.background = this.checked ? '#4caf50' : 'var(--border-color)'; this.style.setProperty('--knob-x', this.checked ? '20px' : '0px');">
+                <style>#suggest-diet-toggle::after { content:''; position:absolute; width:20px; height:20px; background:white; border-radius:50%; top:3px; left:3px; transition:0.3s; transform:translateX(var(--knob-x, 0px)); }</style>
+            </label>
+        </div>
+
+        <div id="suggest-card-area" style="display:flex; flex-direction:column; align-items:center; margin-bottom:28px; min-height:200px; justify-content:center;">
+            <div style="text-align:center; color:var(--text-secondary); font-size:14px; padding:32px; border:1px dashed var(--border-color); border-radius:20px; width:100%;">
+                <i class="ph ph-fork-knife" style="font-size:48px; display:block; margin-bottom:12px; opacity:0.4;"></i>
+                Butona basarak sana rastgele bir yemek önerelim!
+            </div>
+        </div>
+
+        <div id="suggest-msg" class="msg-box"></div>
+
+        <button class="btn btn-pulse" id="suggest-btn" onclick="fetchFoodSuggest()" style="background-color:#9c7300; color:#fff;">
+            <i class="ph ph-shuffle" style="font-size:20px; vertical-align:middle; margin-right:6px;"></i>
+            Yemek Öner!
+        </button>
+    </div>
+
+    <!-- FOTOĞRAFLA KALORİ ÖLÇER -->
+    <div id="calorie-photo-container" class="container">
+        <div class="page-header">
+            <h1><i class="ph ph-camera text-primary"></i> Kalori <span class="text-primary">Ölçer</span></h1>
+            <p>Fotoğraf çek veya yükle, kalorisini öğren</p>
+        </div>
+
+        <div class="limit-card">
+            <div class="limit-header">
+                <span>Günlük Analiz Hakkı</span>
+                <span class="count"><span id="calphoto-used">-</span> / <span id="calphoto-limit">1</span></span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="calphoto-bar" style="width:0%"></div>
+            </div>
+        </div>
+
+        <div id="calphoto-msg" class="msg-box"></div>
+
+        <!-- Fotoğraf Yükleme Alanı -->
+        <div class="photo-upload-area" id="calphoto-upload-area" onclick="document.getElementById('calphoto-file-input').click()">
+            <div id="calphoto-upload-placeholder">
+                <i class="ph ph-camera-plus"></i>
+                <div style="font-size:14px; color:var(--text-secondary);">Fotoğraf yüklemek için dokun</div>
+                <div style="font-size:12px; color:#555; margin-top:4px;">JPG, PNG</div>
+            </div>
+            <div id="calphoto-preview-wrap" class="hidden">
+                <img id="calphoto-preview" class="photo-preview" src="" alt="Önizleme">
+                <div style="margin-top:8px; display:flex; gap:8px; justify-content:center;">
+                    <button class="btn" style="padding:8px 16px; font-size:12px; width:auto; background:var(--surface-light); color:var(--text-secondary); border:1px solid var(--border-color); box-shadow:none;" onclick="event.stopPropagation(); clearFoodPhoto();">Fotoğrafı Değiştir</button>
+                </div>
+            </div>
+        </div>
+        <input type="file" id="calphoto-file-input" accept="image/jpeg,image/png" style="display:none" onchange="previewFoodPhoto(event)">
+
+        <!-- İsteğe Bağlı Detay -->
+        <div class="form-group" style="margin-bottom:16px;">
+            <label>Yemekle İlgili Detay (isteğe bağlı)</label>
+            <div class="input-wrapper">
+                <textarea id="calphoto-details" lang="tr" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Örn: porsiyon büyüklüğü, içindekiler, pişirme yöntemi..." rows="2"
+                    style="width:100%; padding:14px 16px; border-radius:12px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-main); font-size:14px; resize:none; font-family:inherit;"></textarea>
+            </div>
+        </div>
+
+        <button class="btn btn-pulse" id="calphoto-analyze-btn" onclick="analyzeFoodPhoto()" style="background-color:#9c7300; color:#fff;">
+            <i class="ph ph-lightning" style="font-size:20px;"></i> Kaloriyi Ölç
+        </button>
+
+        <div id="calphoto-loading" class="flex items-center justify-center gap-2 mt-4 hidden">
+            <div class="spinner"></div>
+            <span style="color: var(--primary-color); font-size: 14px;">Fotoğraf analiz ediliyor...</span>
+        </div>
+
+        <!-- Sonuç Alanı -->
+        <div id="calphoto-result" class="hidden"></div>
+    </div>
+
+    <!-- LİDER TABLOSU -->
+    <div id="leaderboard-container" class="container">
+        <div class="page-header">
+            <h1><i class="ph ph-trophy text-primary"></i> Lider <span class="text-primary">Tablosu</span></h1>
+            <p>En yüksek XP'ye sahip kullanıcılar</p>
+        </div>
+
+        <div id="leaderboard-loading" class="flex items-center justify-center gap-2 mt-4" style="padding:40px 0;">
+            <div class="spinner"></div>
+            <span style="color: var(--primary-color); font-size: 14px;">Yükleniyor...</span>
+        </div>
+
+        <div id="leaderboard-list"></div>
+
+        <div id="leaderboard-user-rank" class="hidden"></div>
+    </div>
+    </div><!-- /app-scroll -->
+
+    <nav class="bottom-nav" id="bottom-nav" style="display: none;">
+        <div class="nav-item active" id="nav-home" onclick="switchTab('home-container', this)">
+            <div class="nav-icon-wrapper"><i class="ph ph-house"></i></div>
+            <span>Ana Sayfa</span>
+        </div>
+        <div class="nav-item" id="nav-create" onclick="switchTab('create-container', this)">
+            <div class="nav-icon-wrapper"><i class="ph ph-chef-hat"></i></div>
+            <span>Oluştur</span>
+        </div>
+        <div class="nav-item" id="nav-history" onclick="switchTab('history-container', this); fetchHistory();">
+            <div class="nav-icon-wrapper"><i class="ph ph-clock-counter-clockwise"></i></div>
+            <span>Geçmiş</span>
+        </div>
+        <div class="nav-item" id="nav-calorie" onclick="switchTab('calorie-container', this); loadCaloriePage();">
+            <div class="nav-icon-wrapper"><i class="ph ph-fire"></i></div>
+            <span>Kalori</span>
+        </div>
+        <div class="nav-item" id="nav-chefbot" onclick="switchTab('chefbot-container', this); loadChefBot();">
+            <div class="nav-icon-wrapper"><i class="ph ph-robot"></i></div>
+            <span>ChefBot</span>
+        </div>
+        <div class="nav-item" id="nav-suggest" onclick="switchTab('suggest-container', this); loadFoodSuggestLimit();">
+            <div class="nav-icon-wrapper"><i class="ph ph-shuffle"></i></div>
+            <span>Öner</span>
+        </div>
+        <div class="nav-item" id="nav-calphoto" onclick="switchTab('calorie-photo-container', this); loadCaloriePhotoLimit();">
+            <div class="nav-icon-wrapper"><i class="ph ph-camera"></i></div>
+            <span>Kalori Ölç</span>
+        </div>
+        <div class="nav-item" id="nav-leaderboard" onclick="switchTab('leaderboard-container', this); fetchLeaderboard();">
+            <div class="nav-icon-wrapper"><i class="ph ph-trophy"></i></div>
+            <span>Lider</span>
+        </div>
+        <div class="nav-item" id="nav-profile" onclick="switchTab('profile-container', this)">
+            <div class="nav-icon-wrapper"><i class="ph ph-user"></i></div>
+            <span>Profil</span>
+        </div>
+    </nav>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+
+        const API_URL = '/api';
+        let authToken = localStorage.getItem('token');
+        let currentUsername = localStorage.getItem('username') || 'Kullanıcı';
+        let isPlus = false;
+        let dailyCount = 0;
+        let userXp = 0;
+        let userLevel = 1;
+        let userStreak = 0;
+        let userDailyCalorieGoal = null;
+
+        // Initialize
+        window.onload = () => {
+            if (authToken) {
+                initApp();
+            } else {
+                hideSplash();
+                showContainer('login-container');
+            }
+            updateGreeting();
+        };
+
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = "Merhaba";
+            if(hour >= 5 && hour < 12) greeting = "Günaydın";
+            else if(hour >= 12 && hour < 18) greeting = "İyi Günler";
+            else if(hour >= 18 && hour < 22) greeting = "İyi Akşamlar";
+            else greeting = "İyi Geceler";
+            document.getElementById('greeting-text').innerHTML = `${greeting}, ${currentUsername} 👋`;
+            document.getElementById('profile-username').innerText = currentUsername;
+        }
+
+        function showMessage(id, message, isError) {
+            const el = document.getElementById(id);
+            el.textContent = message;
+            el.className = 'msg-box ' + (isError ? 'msg-error' : 'msg-success');
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 4000);
+        }
+
+        function showContainer(id) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function switchTab(id, navElement) {
+            showContainer(id);
+            document.querySelectorAll('.nav-item').forEach(n => {
+                n.classList.remove('active');
+                n.classList.remove('active-create');
+            });
+            if(id === 'create-container') {
+                navElement.classList.add('active-create');
+                navElement.classList.add('active');
+            } else {
+                navElement.classList.add('active');
+            }
+            // ChefBot overlay'i sadece ChefBot sekmesinde göster
+            const overlay = document.getElementById('chefbot-overlay');
+            if (overlay) overlay.style.display = id === 'chefbot-container' ? 'flex' : 'none';
+        }
+
+        function switchAuthTab(tab) {
+            document.getElementById('tab-login').classList.remove('active');
+            document.getElementById('tab-register').classList.remove('active');
+            document.getElementById('form-login').classList.add('hidden');
+            document.getElementById('form-register').classList.add('hidden');
+            
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById(`form-${tab}`).classList.remove('hidden');
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        async function handleAuth(type) {
+            const username = document.getElementById(`${type}-username`).value;
+            const password = document.getElementById(`${type}-password`).value;
+            
+            if(type === 'register') {
+                if(!username || !password) return showMessage('auth-msg', 'Lütfen tüm alanları doldurun.', true);
+            } else {
+                if(!username || !password) return showMessage('auth-msg', 'Lütfen tüm alanları doldurun.', true);
+            }
+
+            const btn = document.querySelector(`#form-${type} .btn`);
+            const originalText = btn.innerHTML;
+            btn.innerHTML = type === 'login' ? 'Giriş Yapılıyor...' : 'Kayıt Olunuyor...';
+            btn.disabled = true;
+
+            let url = `${API_URL}/${type}`;
+            let options = {};
+
+            if(type === 'login') {
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('password', password);
+                options = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                };
+            } else {
+                const fullName = document.getElementById('register-fullname').value || '';
+                const email = document.getElementById('register-email').value || '';
+                const goal = document.querySelector('input[name="goal"]:checked')?.value || '';
+                const dailyCalorie = parseInt(document.getElementById('register-daily-calorie').value) || null;
+                options = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        full_name: fullName,
+                        email,
+                        goal,
+                        daily_calorie_goal: dailyCalorie
+                    })
+                };
+            }
+
+            try {
+                const res = await fetch(url, options);
+                const data = await res.json();
+                if (res.ok) {
+                    authToken = data.access_token;
+                    currentUsername = username;
+                    localStorage.setItem('token', authToken);
+                    localStorage.setItem('username', currentUsername);
+                    initApp();
+                } else {
+                    showMessage('auth-msg', data.detail || 'İşlem başarısız.', true);
+                }
+            } catch (err) {
+                showMessage('auth-msg', 'Bir Sorun Oluştu.', true);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            authToken = null;
+            isPlus = false;
+            dailyCount = 0;
+            // Plus UI'ı sıfırla - id'leri koruyarak
+            document.getElementById('home-limit-used') && (document.getElementById('home-limit-used').innerText = '0');
+            document.getElementById('create-limit-used') && (document.getElementById('create-limit-used').innerText = '0');
+            document.getElementById('home-limit-bar') && (document.getElementById('home-limit-bar').style.width = '0%');
+            document.getElementById('create-limit-bar') && (document.getElementById('create-limit-bar').style.width = '0%');
+            document.getElementById('plus-non-member').classList.remove('hidden');
+            document.getElementById('plus-member').classList.add('hidden');
+            document.getElementById('profile-plan').innerText = 'Ücretsiz Plan';
+            document.getElementById('profile-plan').style.color = '';
+            document.getElementById('bottom-nav').style.display = 'none';
+            showContainer('login-container');
+        }
+
+        function hideSplash() {
+            const splash = document.getElementById('splash-screen');
+            if (splash) {
+                splash.classList.add('splash-hide');
+                setTimeout(() => { splash.style.display = 'none'; }, 400);
+            }
+        }
+
+        function showToast(html, isSuccess = true) {
+            const toast = document.getElementById('app-toast');
+            if (!toast) return;
+            toast.style.background = isSuccess ? 'linear-gradient(135deg, #00c853, #00e676)' : 'linear-gradient(135deg, #d32f2f, #ff5252)';
+            toast.style.color = '#fff';
+            toast.innerHTML = html;
+            if (toast._hideTimer) clearTimeout(toast._hideTimer);
+            toast.style.display = 'flex';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-12px) scale(0.92)';
+            void toast.offsetWidth;
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0) scale(1)';
+            toast._hideTimer = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-12px) scale(0.92)';
+                setTimeout(() => { toast.style.display = 'none'; }, 320);
+            }, 4000);
+        }
+
+        function showStreakToast(newStreak) {
+            const toast = document.getElementById('streak-toast');
+            const text = document.getElementById('streak-toast-text');
+            if (!toast || !text) return;
+            text.textContent = `Seri arttı! ${newStreak} 🔥`;
+            if (toast._hideTimer) clearTimeout(toast._hideTimer);
+            // display:none → flex, sonra opacity animasyonu
+            toast.style.display = 'flex';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-12px) scale(0.92)';
+            void toast.offsetWidth; // reflow
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0) scale(1)';
+            toast._hideTimer = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-12px) scale(0.92)';
+                setTimeout(() => { toast.style.display = 'none'; }, 320);
+            }, 3000);
+        }
+
+        // Streak değişimini takip et ve toast göster
+        function checkAndShowStreakToast(newStreak) {
+            if ((newStreak || 0) > (userStreak || 0)) {
+                showStreakToast(newStreak);
+            }
+        }
+
+        async function initApp() {
+            updateGreeting();
+
+            // API cevabı gelmeden UI'ı gösterme, splash ekranda kalıyor
+            try {
+                const res = await fetchWithAuth(`${API_URL}/user/me`);
+                if(res.ok) {
+                    const userData = await res.json();
+                    isPlus = userData.is_plus === true;
+                    userXp = userData.xp || 0;
+                    userLevel = userData.level || 1;
+                    userStreak = userData.streak || 0;
+                    userDailyCalorieGoal = userData.daily_calorie_goal;
+                }
+            } catch(e) {
+                // Hata olsa bile splash'i kaldır ve login'e yönlendir
+                hideSplash();
+                showContainer('login-container');
+                return;
+            }
+
+            // isPlus kesinleştikten sonra UI'ı göster
+            document.getElementById('bottom-nav').style.display = 'flex';
+            applyPlusUI();
+            switchTab('home-container', document.getElementById('nav-home'));
+
+            // Limitleri DOM hazır olduktan sonra yükle, splash hâlâ görünür
+            try {
+                await Promise.all([loadFoodSuggestLimit(), loadCaloriePhotoLimit()]);
+            } catch(e) {}
+
+            hideSplash();
+            await fetchHistory();
+            updateProfileStats();
+        }
+
+        async function fetchWithAuth(url, options = {}) {
+            if (!options.headers) options.headers = {};
+            options.headers['Authorization'] = `Bearer ${authToken}`;
+            const res = await fetch(url, options);
+            if (res.status === 401) {
+                logout();
+                throw new Error("Oturum süresi doldu");
+            }
+            return res;
+        }
+
+        // Format Date
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            try {
+                // Backend UTC olarak saklıyor ama 'Z' olmadan gönderiyor.
+                // 'Z' ekleyince tarayıcı UTC→yerel saat dönüşümü yapar (TR: +3).
+                const utcString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                return new Date(utcString).toLocaleDateString('tr-TR', options);
+            } catch(e) { return dateString; }
+        }
+
+        function renderRecipeCard(recipe, isFull = false) {
+            try {
+                const dietTag = recipe.is_diet ? `<div class="tag tag-green"><i class="ph ph-leaf"></i> Diyet</div>` : '';
+                const kcalTag = recipe.calories ? `<div class="tag tag-orange"><i class="ph ph-fire"></i> ${recipe.calories}</div><div style="font-size:10px; color:var(--text-secondary); text-align:right; margin-top:4px; line-height:1.3;">Kalori her zaman birebir<br>doğru olmayabilir</div>` : '';
+                
+                let contentHTML = '';
+                
+                // Güvenli haritalama (array değilse boş döndür)
+                const safeMap = (arr, fn) => (arr && Array.isArray(arr)) ? arr.map(fn).join('') : '';
+
+                const ingredients = recipe.ingredients || [];
+                const steps = recipe.steps || [];
+
+                if(ingredients.length > 0 || steps.length > 0) {
+                    const ingredientsHTML = safeMap(ingredients, i => `<li><i class="ph ph-circle"></i> ${i}</li>`);
+                    const stepsHTML = safeMap(steps, (s, idx) => `<li><i class="ph ph-cooking-pot"></i> <div><strong>Adım ${idx+1}:</strong> ${s}</div></li>`);
+                    
+                    contentHTML = `
+                        <div class="rp-toggle-content" onclick="toggleRecipeDetails(this)">
+                            <span>Tarifi Gizle/Göster</span>
+                            <i class="ph ph-caret-down"></i>
+                        </div>
+                        <div class="rp-content ${isFull ? 'show' : ''}">
+                            <div class="rp-section-heading">MALZEMELER</div>
+                            <ul class="rp-list mb-4">${ingredientsHTML || '<li>Bilgi yok</li>'}</ul>
+                            <div class="rp-section-heading">HAZIRLANIŞI</div>
+                            <ul class="rp-list">${stepsHTML || '<li>Bilgi yok</li>'}</ul>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="recipe-preview-card mb-4">
+                        <div class="recipe-preview-header">
+                            <div>
+                                <div class="rp-title">${recipe.name || 'İsimsiz Tarif'}</div>
+                                <div class="rp-date">${formatDate(recipe.created_at)}</div>
+                            </div>
+                            <div class="rp-tags">
+                                ${kcalTag}
+                                ${dietTag}
+                            </div>
+                        </div>
+                        ${contentHTML}
+                    </div>
+                `;
+            } catch(err) {
+                console.error('renderRecipeCard error:', err, recipe);
+                return `<div class="recipe-preview-card mb-4"><div class="rp-title">${recipe && recipe.name ? recipe.name : 'Tarif'}</div></div>`;
+            }
+        }
+
+        function toggleRecipeDetails(el) {
+            const content = el.nextElementSibling;
+            content.classList.toggle('show');
+            const icon = el.querySelector('.ph-caret-down') || el.querySelector('.ph-caret-up');
+            if(content.classList.contains('show')){
+                icon.classList.replace('ph-caret-down', 'ph-caret-up');
+            } else {
+                icon.classList.replace('ph-caret-up', 'ph-caret-down');
+            }
+        }
+
+        function getLocalRecipes() {
+            try { return JSON.parse(localStorage.getItem('recipes') || '[]'); } catch(e) { return []; }
+        }
+
+        function saveLocalRecipes(recipes) {
+            localStorage.setItem('recipes', JSON.stringify(recipes));
+        }
+
+        function fetchHistory() {
+            const listDiv = document.getElementById('history-list');
+            const homeLast = document.getElementById('home-last-recipe');
+
+            try {
+                const data = getLocalRecipes();
+                document.getElementById('history-count').innerText = `${data.length} tarif oluşturuldu`;
+
+                const turkeyNow = new Date(Date.now() + 3 * 60 * 60 * 1000);
+                const todayStr = turkeyNow.toISOString().split('T')[0];
+                dailyCount = data.filter(r => {
+                    if (!r || !r.created_at) return false;
+                    const recipeInTurkey = new Date(new Date(r.created_at).getTime() + 3 * 60 * 60 * 1000);
+                    return recipeInTurkey.toISOString().split('T')[0] === todayStr;
+                }).length;
+                updateLimitDisplay();
+
+                if (data.length === 0) {
+                    const emptyHtml = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:14px;border:1px dashed var(--border-color);border-radius:12px;">Henüz tarif oluşturulmadı.</div>';
+                    if(listDiv) listDiv.innerHTML = emptyHtml;
+                    if(homeLast) homeLast.innerHTML = emptyHtml;
+                } else {
+                    const historyHtml = data.map(r => renderRecipeCard(r, false)).join('');
+                    const homeHtml   = data.slice(0, 3).map((r, idx) => renderRecipeCard(r, idx === 0)).join('');
+                    if(listDiv)  listDiv.innerHTML  = historyHtml;
+                    if(homeLast) homeLast.innerHTML = homeHtml;
+                }
+            } catch (e) {
+                const errHtml = `<div style="text-align:center;color:var(--error-color);padding:20px;border:1px dashed var(--error-color);border-radius:12px;">Bir Sorun Oluştu</div>`;
+                if(listDiv) listDiv.innerHTML = errHtml;
+                if(homeLast) homeLast.innerHTML = errHtml;
+            }
+        }
+
+        function updateLimitDisplay() {
+            if (isPlus) {
+                const limit = 20;
+                const pct = Math.min((dailyCount / limit) * 100, 100);
+                const display = Math.min(dailyCount, limit);
+                document.querySelectorAll('.plus-limit-used').forEach(el => el.innerText = display);
+                document.querySelectorAll('.plus-limit-bar').forEach(el => el.style.width = pct + '%');
+            } else {
+                const limit = 2;
+                const display = Math.min(dailyCount, limit);
+                const pct = Math.min((dailyCount / limit) * 100, 100);
+                const homeUsed = document.getElementById('home-limit-used');
+                const createUsed = document.getElementById('create-limit-used');
+                const homeBar = document.getElementById('home-limit-bar');
+                const createBar = document.getElementById('create-limit-bar');
+                if (homeUsed) homeUsed.innerText = display;
+                if (createUsed) createUsed.innerText = display;
+                if (homeBar) homeBar.style.width = pct + '%';
+                if (createBar) createBar.style.width = pct + '%';
+            }
+        }
+
+        async function generateRecipe() {
+            const foodName = document.getElementById('food-input').value;
+            const isDiet = document.getElementById('diet-mode').checked;
+            if(!foodName) return showMessage('create-msg', 'Lütfen bir yemek adı girin.', true);
+
+            const btn = document.getElementById('generate-btn');
+            const loader = document.getElementById('loading-indicator');
+            
+            btn.classList.add('hidden');
+            loader.classList.remove('hidden');
+
+            try {
+                const res = await fetchWithAuth(`${API_URL}/recipe/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ food_name: foodName, is_diet: isDiet })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    document.getElementById('food-input').value = '';
+                    // Save recipe locally
+                    const recipes = getLocalRecipes();
+                    recipes.unshift(data);
+                    saveLocalRecipes(recipes);
+                    fetchHistory();
+                    if (data.xp != null) {
+                        const newStreak = data.streak || 0;
+                        checkAndShowStreakToast(newStreak);
+                        userXp = data.xp || 0;
+                        userLevel = data.level || 1;
+                        userStreak = newStreak;
+                        userDailyCalorieGoal = data.daily_calorie_goal;
+                        updateProfileStats();
+                    }
+                    switchTab('home-container', document.getElementById('nav-home'));
+                    setTimeout(() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}), 100);
+                } else {
+                    showMessage('create-msg', data.detail || 'Bir hata oluştu.', true);
+                }
+            } catch (err) {
+                if(err.message !== "Oturum süresi doldu") {
+                    showMessage('create-msg', 'Tarif oluşturulurken bir hata oluştu.', true);
+                }
+            } finally {
+                btn.classList.remove('hidden');
+                loader.classList.add('hidden');
+            }
+        }
+
+        // ── Kalori sayfası fonksiyonları ─────────────────────────────────────
+
+        async function loadCaloriePage() {
+            const turkeyNow = new Date(Date.now() + 3 * 60 * 60 * 1000);
+            const todayStr = turkeyNow.toISOString().split('T')[0];
+            const deficitDate = document.getElementById('cal-deficit-date');
+            if (deficitDate && !deficitDate.value) deficitDate.value = todayStr;
+            await fetchCalorieLogs();
+            await loadFoodEntries();
+        }
+
+
+        function getLocalCalorieLogs() {
+            try { return JSON.parse(localStorage.getItem('calorie_logs') || '[]'); } catch(e) { return []; }
+        }
+
+        function saveLocalCalorieLogs(logs) {
+            localStorage.setItem('calorie_logs', JSON.stringify(logs));
+        }
+
+        async function saveCalorieLog() {
+            const bmr = parseFloat(document.getElementById('cal-bmr').value);
+            const active = parseFloat(document.getElementById('cal-active').value);
+            const intake = parseFloat(document.getElementById('cal-intake').value);
+
+            if (isNaN(bmr) || isNaN(active) || isNaN(intake))
+                return showMessage('calorie-msg', 'Tüm alanları doldurun.', true);
+
+            const deficit = (bmr + active) - intake;
+            const dateVal = document.getElementById('cal-deficit-date').value;
+            const targetDate = dateVal || new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+            // Save locally
+            const logs = getLocalCalorieLogs();
+            const existing = logs.findIndex(l => l.date === targetDate);
+            const entry = { date: targetDate, bmr: Math.round(bmr * 100) / 100, active_calories: active, intake_calories: intake, deficit: Math.round(deficit * 100) / 100 };
+            if (existing >= 0) logs[existing] = entry;
+            else logs.push(entry);
+            saveLocalCalorieLogs(logs);
+
+            const sign = deficit >= 0 ? '+' : '';
+            showMessage('calorie-msg', `Kaydedildi! Günlük açık: ${sign}${deficit.toFixed(2)} kcal`, false);
+            const turkeyNow = new Date(Date.now() + 3 * 60 * 60 * 1000);
+            document.getElementById('cal-deficit-date').value = turkeyNow.toISOString().split('T')[0];
+            fetchCalorieLogs();
+
+            // Streak güncelle (server'a bildir)
+            try {
+                const calRes = await fetchWithAuth(`${API_URL}/calorie/log`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bmr, active_calories: active, intake_calories: intake })
+                });
+                const calData = await calRes.json();
+                if (calData.xp != null) {
+                    const newStreak = calData.streak || 0;
+                    checkAndShowStreakToast(newStreak);
+                    userXp = calData.xp || 0;
+                    userLevel = calData.level || 1;
+                    userStreak = newStreak;
+                    userDailyCalorieGoal = calData.daily_calorie_goal;
+                    updateProfileStats();
+                }
+            } catch(e) {}
+        }
+
+        function fetchCalorieLogs() {
+            const listDiv = document.getElementById('calorie-log-list');
+            try {
+                const logs = getLocalCalorieLogs();
+                if (!logs.length) {
+                    listDiv.innerHTML = '<div style="text-align:center; color:var(--text-secondary); font-size:14px; padding:20px; border:1px dashed var(--border-color); border-radius:12px;">Henüz kayıt yok.</div>';
+                    const totalCard = document.getElementById('calorie-total-card');
+                    if (totalCard) totalCard.style.display = 'none';
+                    return;
+                }
+
+                const totalDeficit = logs.reduce((sum, l) => sum + (l.deficit || 0), 0);
+                const totalKg = totalDeficit / 7700;
+                const totalCard = document.getElementById('calorie-total-card');
+                const totalKcalEl = document.getElementById('calorie-total-kcal');
+                const totalKgEl = document.getElementById('calorie-total-kg');
+                if (totalCard) totalCard.style.display = 'block';
+                if (totalKcalEl) {
+                    const sign = totalDeficit >= 0 ? '+' : '';
+                    totalKcalEl.textContent = sign + Math.round(totalDeficit).toLocaleString('tr-TR');
+                    totalKcalEl.style.color = totalDeficit >= 0 ? 'var(--success-color)' : 'var(--error-color)';
+                }
+                if (totalKgEl) {
+                    const kgSign = totalKg >= 0 ? '+' : '';
+                    totalKgEl.textContent = kgSign + totalKg.toFixed(2);
+                    totalKgEl.style.color = totalKg >= 0 ? 'var(--success-color)' : 'var(--error-color)';
+                }
+
+                logs.sort((a, b) => b.date.localeCompare(a.date));
+                listDiv.innerHTML = logs.map(log => {
+                    const isPositive = log.deficit >= 0;
+                    const color = isPositive ? 'var(--success-color)' : 'var(--error-color)';
+                    const icon = isPositive ? 'ph-trend-up' : 'ph-trend-down';
+                    const sign2 = isPositive ? '+' : '';
+                    const dateLabel = new Date(log.date + 'T00:00:00').toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                    return `
+                        <div style="background:var(--surface-color); border-radius:14px; padding:16px; margin-bottom:10px; border:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-size:13px; color:var(--text-secondary); margin-bottom:4px;">${dateLabel}</div>
+                                <div style="font-size:11px; color:var(--text-secondary);">
+                                    BMR: ${log.bmr} &nbsp;|&nbsp; Aktif: ${log.active_calories} &nbsp;|&nbsp; Alınan: ${log.intake_calories}
+                                </div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:20px; font-weight:700; color:${color};">${sign2}${log.deficit}</div>
+                                <div style="font-size:11px; color:${color}; display:flex; align-items:center; gap:3px; justify-content:flex-end;">
+                                    <i class="ph ${icon}"></i> kcal açık
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch(e) {}
+        }
+
+        // ── Yiyecek Girişi (Kümülatif Kalori - localStorage) ─────────────────
+
+        function getTurkeyDateStr() {
+            return new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString().split('T')[0];
+        }
+
+        function getLocalFoodEntries() {
+            try { return JSON.parse(localStorage.getItem('food_entries') || '[]'); } catch(e) { return []; }
+        }
+
+        function saveLocalFoodEntries(entries) {
+            localStorage.setItem('food_entries', JSON.stringify(entries));
+        }
+
+        function getTodayEntries() {
+            const today = getTurkeyDateStr();
+            const savedDay = localStorage.getItem('food_entries_day');
+            if (savedDay !== today) {
+                localStorage.setItem('food_entries_day', today);
+                saveLocalFoodEntries([]);
+                return [];
+            }
+            return getLocalFoodEntries();
+        }
+
+        function loadFoodEntries() {
+            const listDiv = document.getElementById('food-entry-list');
+            const totalEl = document.getElementById('food-entry-total');
+            const goalEl = document.getElementById('food-entry-goal');
+            const barEl = document.getElementById('food-entry-bar');
+
+            const entries = getTodayEntries();
+            const total = entries.reduce((s, e) => s + e.calories, 0);
+            totalEl.textContent = total + ' kcal';
+
+            const goal = userDailyCalorieGoal;
+            if (goal) {
+                goalEl.textContent = 'Hedef: ' + goal + ' kcal';
+                const pct = Math.min((total / goal) * 100, 100);
+                barEl.style.width = pct + '%';
+                barEl.style.background = total >= goal ? 'var(--error-color)' : 'var(--primary-color)';
+            } else {
+                goalEl.textContent = 'Hedef: --';
+                barEl.style.width = '0%';
+            }
+
+            if (!entries.length) {
+                listDiv.innerHTML = '<div style="text-align:center; color:var(--text-secondary); font-size:13px; padding:16px; border:1px dashed var(--border-color); border-radius:10px;">Henüz yiyecek eklenmedi.</div>';
+                return;
+            }
+
+            listDiv.innerHTML = entries.map(e => {
+                return `
+                    <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--bg-color); border:1px solid var(--border-color); border-radius:10px; margin-bottom:6px;">
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-size:15px; font-weight:600; color:var(--primary-color);">${e.calories} kcal</div>
+                            ${e.description ? `<div style="font-size:12px; color:var(--text-secondary);">${e.description}</div>` : ''}
+                        </div>
+                        <i class="ph ph-trash" style="font-size:16px; color:var(--error-color); cursor:pointer; flex-shrink:0;" onclick="deleteFoodEntry(${e.id})"></i>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addFoodEntry() {
+            const calories = parseInt(document.getElementById('food-entry-calories').value);
+            const desc = document.getElementById('food-entry-desc').value.trim();
+            if (!calories || calories <= 0) return showMessage('food-entry-msg', 'Lütfen geçerli bir kalori değeri girin.', true);
+
+            const entries = getTodayEntries();
+            const newEntry = {
+                id: Date.now(),
+                calories: calories,
+                description: desc
+            };
+            entries.push(newEntry);
+            saveLocalFoodEntries(entries);
+            document.getElementById('food-entry-calories').value = '';
+            document.getElementById('food-entry-desc').value = '';
+            loadFoodEntries();
+            showMessage('food-entry-msg', 'Eklendi!', false);
+            setTimeout(() => document.getElementById('food-entry-msg').textContent = '', 2000);
+        }
+
+        function addFoodEntryFromPhoto() {
+            const calories = window._photoCal;
+            const desc = window._photoName || '';
+            if (!calories || calories <= 0) return showMessage('calphoto-msg', 'Geçerli bir kalori değeri yok.', true);
+
+            const entries = getTodayEntries();
+            const newEntry = {
+                id: Date.now(),
+                calories: calories,
+                description: desc
+            };
+            entries.push(newEntry);
+            saveLocalFoodEntries(entries);
+
+            const btn = document.querySelector('#calphoto-result button');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ph ph-check-circle" style="font-size:18px;"></i> Bugün Tüketilen\'e Eklendi!'; btn.style.background = 'var(--success-color)'; }
+            loadFoodEntries();
+        }
+
+        function deleteFoodEntry(id) {
+            let entries = getTodayEntries();
+            entries = entries.filter(e => e.id !== id);
+            saveLocalFoodEntries(entries);
+            loadFoodEntries();
+        }
+
+        // ── ChefBot ──────────────────────────────────────────────────────────
+
+        let chefbotHistory = [];
+        let chefbotLoading = false;
+
+        async function loadChefBot() {
+            const limit = isPlus ? 50 : 5;
+            try {
+                const res = await fetchWithAuth(`${API_URL}/chefbot/limit`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const used = data.used;
+                const pct = Math.min((used / limit) * 100, 100);
+                const usedEl = document.getElementById('chefbot-used');
+                const limitEl = document.getElementById('chefbot-limit');
+                const barEl = document.getElementById('chefbot-bar');
+                if (usedEl) usedEl.textContent = used;
+                if (limitEl) limitEl.textContent = limit;
+                if (barEl) barEl.style.width = pct + '%';
+            } catch(e) {}
+        }
+
+        function appendBubble(role, text) {
+            const wrap = document.getElementById('chefbot-messages');
+            const div = document.createElement('div');
+            div.className = `chefbot-bubble ${role}`;
+            const avatarIcon = role === 'user' ? 'ph-user' : 'ph-robot';
+            div.innerHTML = `
+                <div class="bubble-avatar"><i class="ph ${avatarIcon}"></i></div>
+                <div class="bubble-text">${text.replace(/\n/g, '<br>')}</div>
+            `;
+            wrap.appendChild(div);
+            wrap.scrollTop = wrap.scrollHeight;
+        }
+
+        async function sendChefBotMessage() {
+            if (chefbotLoading) return;
+            const input = document.getElementById('chefbot-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            input.style.height = 'auto';
+
+            appendBubble('user', text);
+            chefbotHistory.push({ role: 'user', content: text });
+
+            chefbotLoading = true;
+            document.getElementById('chefbot-typing').style.display = 'block';
+            const msgs = document.getElementById('chefbot-messages');
+            msgs.scrollTop = msgs.scrollHeight;
+
+            try {
+                const res = await fetchWithAuth(`${API_URL}/chefbot`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: chefbotHistory })
+                });
+                const data = await res.json();
+
+                document.getElementById('chefbot-typing').style.display = 'none';
+
+                if (res.ok) {
+                    appendBubble('bot', data.reply);
+                    chefbotHistory.push({ role: 'assistant', content: data.reply });
+                    loadChefBot();
+                    if (data.xp != null) {
+                        const newStreak = data.streak || 0;
+                        checkAndShowStreakToast(newStreak);
+                        userXp = data.xp || 0;
+                        userLevel = data.level || 1;
+                        userStreak = newStreak;
+                        userDailyCalorieGoal = data.daily_calorie_goal;
+                        updateProfileStats();
+                    }
+                } else if (res.status === 429) {
+                    appendBubble('bot', data.detail);
+                    chefbotHistory.pop(); // başarısız mesajı geçmişten çıkar
+                } else {
+                    appendBubble('bot', 'Bir hata oluştu, lütfen tekrar deneyin.');
+                    chefbotHistory.pop();
+                }
+            } catch(e) {
+                document.getElementById('chefbot-typing').style.display = 'none';
+                appendBubble('bot', 'Bir sorun oluştu.');
+                chefbotHistory.pop();
+            } finally {
+                chefbotLoading = false;
+            }
+        }
+
+        // Textarea otomatik yükseklik
+        document.addEventListener('DOMContentLoaded', () => {
+            const ta = document.getElementById('chefbot-input');
+            if (ta) ta.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        });
+
+        function updateProfileStats() {
+            const xpInLevel = userXp % 100;
+            const pct = xpInLevel;
+            // Profil sayfası
+            const el_level = document.getElementById('profile-level');
+            const el_xp = document.getElementById('profile-xp');
+            const el_streak = document.getElementById('profile-streak');
+            const el_progress = document.getElementById('profile-xp-progress');
+            const el_bar = document.getElementById('profile-xp-bar');
+            if (el_level) el_level.innerText = 'Lvl ' + userLevel;
+            if (el_xp) el_xp.innerText = userXp + ' XP';
+            if (el_streak) el_streak.innerText = userStreak + ' 🔥';
+            if (el_progress) el_progress.innerText = xpInLevel + ' / 100 XP';
+            if (el_bar) el_bar.style.width = pct + '%';
+            // Ana sayfa
+            const h_level = document.getElementById('home-level');
+            const h_xp = document.getElementById('home-xp');
+            const h_streak = document.getElementById('home-streak');
+            if (h_level) h_level.innerText = 'Lvl ' + userLevel;
+            if (h_xp) h_xp.innerText = userXp + ' XP';
+            if (h_streak) h_streak.innerText = userStreak + ' 🔥';
+            // Günlük kalori hedefi
+            updateCalorieGoalDisplay(userDailyCalorieGoal);
+        }
+
+        function updateCalorieGoalDisplay(goal) {
+            const el = document.getElementById('profile-calorie-goal');
+            if (!el) return;
+            if (goal) {
+                el.innerText = goal + ' kcal';
+                el.dataset.goal = goal;
+            } else {
+                el.innerText = 'Belirtilmemiş';
+                el.dataset.goal = '';
+            }
+        }
+
+        function editCalorieGoal() {
+            const el = document.getElementById('profile-calorie-goal');
+            const currentGoal = el ? el.dataset.goal : '';
+            document.getElementById('edit-calorie-input').value = currentGoal;
+            document.getElementById('edit-calorie-input').focus();
+            document.getElementById('edit-calorie-form').classList.remove('hidden');
+            document.getElementById('edit-calorie-btn').classList.add('hidden');
+            const msg = document.getElementById('edit-calorie-msg');
+            if (msg) msg.textContent = '';
+        }
+
+        function cancelEditCalorie() {
+            document.getElementById('edit-calorie-form').classList.add('hidden');
+            document.getElementById('edit-calorie-btn').classList.remove('hidden');
+            const msg = document.getElementById('edit-calorie-msg');
+            if (msg) msg.textContent = '';
+        }
+
+        async function saveCalorieGoal() {
+            const val = parseInt(document.getElementById('edit-calorie-input').value);
+            if (!val || val < 0) {
+                const msg = document.getElementById('edit-calorie-msg');
+                if (msg) {
+                    msg.textContent = 'Lütfen geçerli bir kalori değeri girin.';
+                    msg.style.color = 'var(--error-color)';
+                }
+                return;
+            }
+            const btn = document.querySelector('#edit-calorie-form .btn');
+            btn.disabled = true;
+            btn.innerHTML = 'Kaydediliyor...';
+            try {
+                const res = await fetchWithAuth(`${API_URL}/user/profile`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ daily_calorie_goal: val })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    userDailyCalorieGoal = data.daily_calorie_goal;
+                    updateCalorieGoalDisplay(data.daily_calorie_goal);
+                    cancelEditCalorie();
+                    // kalori sayfasındaki hedefi de güncelle
+                    loadFoodEntries();
+                } else {
+                    const err = await res.json();
+                    const msg = document.getElementById('edit-calorie-msg');
+                    if (msg) {
+                        msg.textContent = err.detail || 'Bir hata oluştu.';
+                        msg.style.color = 'var(--error-color)';
+                    }
+                }
+            } catch(e) {
+                if (e.message !== 'Oturum süresi doldu') {
+                    const msg = document.getElementById('edit-calorie-msg');
+                    if (msg) {
+                        msg.textContent = 'Bir hata oluştu.';
+                        msg.style.color = 'var(--error-color)';
+                    }
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Kaydet';
+            }
+        }
+
+        // ── Promosyon Kodu ──────────────────────────────────────────────────
+
+        function getUsedPromoCodes() {
+            try { return JSON.parse(localStorage.getItem('used_promo_codes_' + currentUsername) || '[]'); } catch(e) { return []; }
+        }
+
+        function addUsedPromoCode(code) {
+            const list = getUsedPromoCodes();
+            if (!list.includes(code)) {
+                list.push(code);
+                localStorage.setItem('used_promo_codes_' + currentUsername, JSON.stringify(list));
+            }
+        }
+
+        async function redeemPromoCode() {
+            const input = document.getElementById('promo-code-input');
+            const btn = document.getElementById('promo-redeem-btn');
+            const code = input.value.trim().toUpperCase();
+            if (!code) { showToast('Lütfen bir kod girin.', false); return; }
+
+            const usedCodes = getUsedPromoCodes();
+            if (usedCodes.includes(code)) {
+                showToast('Bu kodu daha önce kullanmışsınız.', false);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px;flex-shrink:0;"></div> Kontrol Ediliyor...';
+
+            try {
+                const res = await fetchWithAuth(`${API_URL}/promo/redeem`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    addUsedPromoCode(code);
+                    let rewardHtml = data.message;
+                    if (data.reward_type === 'xp') {
+                        rewardHtml += `<br><span style="display:inline-block; margin-top:4px; padding:3px 10px; background:rgba(255,255,255,0.2); border-radius:8px; font-size:13px;">+${data.reward_value} XP</span>`;
+                    } else if (data.reward_type === 'limit_reset') {
+                        rewardHtml += `<br><span style="display:inline-block; margin-top:4px; padding:3px 10px; background:rgba(255,255,255,0.2); border-radius:8px; font-size:13px;"><i class="ph ph-arrow-counter-clockwise"></i> Limitler Sıfırlandı</span>`;
+                    }
+                    showToast(rewardHtml, true);
+                    input.value = '';
+                    if (data.xp != null) {
+                        userXp = data.xp || 0;
+                        userLevel = data.level || 1;
+                        userStreak = data.streak || 0;
+                        userDailyCalorieGoal = data.daily_calorie_goal;
+                        updateProfileStats();
+                    }
+                } else {
+                    showToast(data.message, false);
+                }
+            } catch(e) {
+                if (e.message !== 'Oturum süresi doldu') {
+                    showToast('Bir hata oluştu.', false);
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ph ph-gift"></i> Kullan';
+            }
+        }
+
+        // ── Fotoğrafla Kalori Ölçer ──────────────────────────────────────────
+
+        async function loadCaloriePhotoLimit() {
+            try {
+                const res = await fetchWithAuth(`${API_URL}/calorie-photo/limit`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const used = data.used;
+                const limit = data.limit;
+                const pct = Math.min((used / limit) * 100, 100);
+                const usedEl = document.getElementById('calphoto-used');
+                const limitEl = document.getElementById('calphoto-limit');
+                const barEl = document.getElementById('calphoto-bar');
+                if (usedEl) usedEl.textContent = used;
+                if (limitEl) limitEl.textContent = limit;
+                if (barEl) barEl.style.width = pct + '%';
+            } catch(e) {}
+        }
+
+        function previewFoodPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('calphoto-preview');
+                preview.src = e.target.result;
+                document.getElementById('calphoto-upload-placeholder').classList.add('hidden');
+                document.getElementById('calphoto-preview-wrap').classList.remove('hidden');
+                document.getElementById('calphoto-upload-area').classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearFoodPhoto() {
+            document.getElementById('calphoto-file-input').value = '';
+            document.getElementById('calphoto-preview').src = '';
+            document.getElementById('calphoto-upload-placeholder').classList.remove('hidden');
+            document.getElementById('calphoto-preview-wrap').classList.add('hidden');
+            document.getElementById('calphoto-upload-area').classList.remove('has-image');
+            document.getElementById('calphoto-result').classList.add('hidden');
+            document.getElementById('calphoto-result').innerHTML = '';
+        }
+
+        async function analyzeFoodPhoto() {
+            const fileInput = document.getElementById('calphoto-file-input');
+            const file = fileInput.files[0];
+            if (!file) return showMessage('calphoto-msg', 'Lütfen bir fotoğraf yükleyin.', true);
+
+            const btn = document.getElementById('calphoto-analyze-btn');
+            const loader = document.getElementById('calphoto-loading');
+            const resultDiv = document.getElementById('calphoto-result');
+
+            btn.classList.add('hidden');
+            loader.classList.remove('hidden');
+            resultDiv.classList.add('hidden');
+            resultDiv.innerHTML = '';
+
+            try {
+                const preview = document.getElementById('calphoto-preview');
+                let base64Image = preview.src;
+                if (base64Image.includes(',')) {
+                    base64Image = base64Image.split(',')[1];
+                }
+
+                const details = document.getElementById('calphoto-details').value.trim();
+
+                const res = await fetchWithAuth(`${API_URL}/calorie-photo/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64Image, details: details })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    if (data.error) {
+                        resultDiv.innerHTML = `<div style="text-align:center; padding:20px; color:var(--error-color);">
+                            <i class="ph ph-warning" style="font-size:40px; display:block; margin-bottom:12px;"></i>
+                            ${data.error}
+                        </div>`;
+                    } else {
+                        window._photoCal = parseInt((data.total_calories || '').replace(/\D/g, ''));
+                        window._photoName = data.food_name || '';
+                        resultDiv.innerHTML = `
+                            <div class="photo-result-card">
+                                <div class="photo-result-name">${window._photoName || 'Yemek'}</div>
+                                <div class="photo-result-cal">${data.total_calories || 'Bilinmiyor'}</div>
+                                <div class="photo-result-grid">
+                                    <div class="photo-result-item">
+                                        <div class="value">${data.protein || '-'}</div>
+                                        <div class="label">Protein</div>
+                                    </div>
+                                    <div class="photo-result-item">
+                                        <div class="value">${data.carbs || '-'}</div>
+                                        <div class="label">Karbonhidrat</div>
+                                    </div>
+                                    <div class="photo-result-item">
+                                        <div class="value">${data.fat || '-'}</div>
+                                        <div class="label">Yağ</div>
+                                    </div>
+                                </div>
+                                ${data.portion_size ? `<div style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;"><i class="ph ph-scales"></i> ${data.portion_size}</div>` : ''}
+                                ${data.description ? `<div class="photo-result-desc">${data.description}</div>` : ''}
+                                ${window._photoCal > 0 ? `<button onclick="addFoodEntryFromPhoto()" style="width:100%; margin-top:12px; padding:10px; border:none; border-radius:12px; background:var(--primary-color); color:#111; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;"><i class="ph ph-plus-circle" style="font-size:18px;"></i> Bugün Tüketilen'e Ekle</button>` : ''}
+                            </div>
+                        `;
+                    }
+                    resultDiv.classList.remove('hidden');
+
+                    // Limit update
+                    loadCaloriePhotoLimit();
+
+                    // XP ve streak güncelle
+                    if (data.xp != null) {
+                        const newStreak = data.streak || 0;
+                        checkAndShowStreakToast(newStreak);
+                        userXp = data.xp || 0;
+                        userLevel = data.level || 1;
+                        userStreak = newStreak;
+                        userDailyCalorieGoal = data.daily_calorie_goal;
+                        updateProfileStats();
+                    }
+
+                    if (data.used >= data.limit) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="ph ph-lock" style="font-size:20px;"></i> Limit doldu';
+                        btn.style.opacity = '0.5';
+                        btn.style.cursor = 'not-allowed';
+                        return;
+                    }
+                } else {
+                    showMessage('calphoto-msg', data.detail || 'Bir hata oluştu.', true);
+                }
+            } catch(e) {
+                if (e.message !== 'Oturum süresi doldu') {
+                    showMessage('calphoto-msg', 'Bir Sorun Oluştu', true);
+                }
+            } finally {
+                btn.classList.remove('hidden');
+                loader.classList.add('hidden');
+            }
+        }
+
+        // ── Lider Tablosu ────────────────────────────────────────────────────
+
+        async function fetchLeaderboard() {
+            const listDiv = document.getElementById('leaderboard-list');
+            const userRankDiv = document.getElementById('leaderboard-user-rank');
+            const loadingDiv = document.getElementById('leaderboard-loading');
+
+            loadingDiv.classList.remove('hidden');
+            listDiv.innerHTML = '';
+            userRankDiv.classList.add('hidden');
+
+            try {
+                const res = await fetchWithAuth(`${API_URL}/leaderboard`);
+                if (!res.ok) {
+                    loadingDiv.classList.add('hidden');
+                    listDiv.innerHTML = '<div style="text-align:center; color:var(--error-color); padding:20px;">Lider tablosu yüklenemedi.</div>';
+                    return;
+                }
+                const data = await res.json();
+
+                const top3Icons = ['ph-crown', 'ph-crown', 'ph-crown'];
+
+                let html = '';
+                data.top_30.forEach((user, idx) => {
+                    const rankClass = idx === 0 ? 'top1' : idx === 1 ? 'top2' : idx === 2 ? 'top3' : 'other';
+                    const isMe = user.username === currentUsername;
+                    const medalIcon = idx < 3 ? `<i class="ph ${top3Icons[idx]}" style="font-size:12px;"></i> ` : '';
+                    html += `
+                        <div class="leaderboard-item ${isMe ? 'current-user' : ''}">
+                            <div class="leaderboard-rank ${rankClass}">${medalIcon}${user.rank}</div>
+                            <div class="leaderboard-info">
+                                <div class="leaderboard-name">${user.username}</div>
+                                <div class="leaderboard-level">Seviye ${user.level}</div>
+                            </div>
+                            <div class="leaderboard-xp">${user.xp.toLocaleString('tr-TR')} XP</div>
+                        </div>
+                    `;
+                });
+
+                listDiv.innerHTML = html;
+                loadingDiv.classList.add('hidden');
+
+                // Kullanıcının sırası
+                if (!data.in_top_30) {
+                    const cu = data.current_user;
+                    userRankDiv.innerHTML = `
+                        <div class="leaderboard-user-rank">
+                            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">Sıralaman</div>
+                            <div class="rank-num">#${cu.rank}</div>
+                            <div class="rank-label">${cu.xp.toLocaleString('tr-TR')} XP • Seviye ${cu.level}</div>
+                            <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">${data.total_users} kullanıcı arasında</div>
+                        </div>
+                    `;
+                    userRankDiv.classList.remove('hidden');
+                }
+            } catch(e) {
+                loadingDiv.classList.add('hidden');
+                listDiv.innerHTML = '<div style="text-align:center; color:var(--error-color); padding:20px;">Bir hata oluştu.</div>';
+            }
+        }
+
+        function applyPlusUI() {
+            if (isPlus) {
+                document.querySelectorAll('.limit-card').forEach(el => {
+                    if (el.id === 'suggest-limit-card' || el.id === 'chefbot-limit-bar-wrap') return;
+                    if (el.querySelector('#calphoto-limit')) return;
+                    el.innerHTML = `<div class="limit-header"><span>Günlük Limit</span><span class="count"><span class="plus-limit-used">-</span> / 20</span></div><div class="progress-bar-bg"><div class="progress-bar-fill plus-limit-bar" style="width:0%"></div></div>`;
+                });
+                document.getElementById('plus-non-member').classList.add('hidden');
+                document.getElementById('plus-member').classList.remove('hidden');
+                document.getElementById('profile-plan').innerText = 'Plus Üyelik';
+                document.getElementById('profile-plan').style.color = 'var(--primary-color)';
+                document.getElementById('chefbot-limit-bar-wrap').innerHTML =
+                    `<div class="limit-header"><span>Günlük Mesaj Hakkı</span><span class="count"><span id="chefbot-used">-</span> / 50</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" id="chefbot-bar" style="width:0%"></div></div>`;
+                updateLimitDisplay();
+                const suggestMaxEl = document.getElementById('suggest-limit-max');
+                if (suggestMaxEl) suggestMaxEl.textContent = '20';
+                const calphotoLimitEl = document.getElementById('calphoto-limit');
+                if (calphotoLimitEl) calphotoLimitEl.textContent = '10';
+                loadChefBot();
+            } else {
+                // Ücretsiz kullanıcı için limit kartlarını sıfırla
+                document.querySelectorAll('.limit-card').forEach(el => {
+                    if (el.id === 'suggest-limit-card' || el.id === 'chefbot-limit-bar-wrap') return;
+                    if (el.querySelector('#calphoto-limit')) return;
+                    el.innerHTML = `<div class="limit-header"><span>Günlük Limit</span><span class="count"><span id="home-limit-used">-</span> / 2</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" id="home-limit-bar" style="width:0%"></div></div>`;
+                });
+                document.getElementById('plus-non-member').classList.remove('hidden');
+                document.getElementById('plus-member').classList.add('hidden');
+                document.getElementById('profile-plan').innerText = 'Ücretsiz Plan';
+                document.getElementById('profile-plan').style.color = '';
+                document.getElementById('chefbot-limit-bar-wrap').innerHTML =
+                    `<div class="limit-header"><span>Günlük Mesaj Hakkı</span><span class="count"><span id="chefbot-used">-</span> / 5</span></div><div class="progress-bar-bg"><div class="progress-bar-fill" id="chefbot-bar" style="width:0%"></div></div>`;
+                // Limit sayaçlarını API'den güncelle
+                const suggestMaxEl = document.getElementById('suggest-limit-max');
+                if (suggestMaxEl) suggestMaxEl.textContent = '2';
+                const calphotoLimitEl = document.getElementById('calphoto-limit');
+                if (calphotoLimitEl) calphotoLimitEl.textContent = '1';
+                updateLimitDisplay();
+                loadChefBot();
+            }
+        }
+
+        // ── Bana Yemek Öner ──────────────────────────────────────────────────
+
+        async function loadFoodSuggestLimit() {
+            try {
+                const res = await fetchWithAuth(`${API_URL}/food-suggest/limit`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const used = data.used;
+                const limit = data.limit;
+                const pct = Math.min((used / limit) * 100, 100);
+                const usedEl = document.getElementById('suggest-used');
+                const maxEl = document.getElementById('suggest-limit-max');
+                const barEl = document.getElementById('suggest-limit-bar');
+                if (usedEl) usedEl.textContent = used;
+                if (maxEl) maxEl.textContent = limit;
+                if (barEl) barEl.style.width = pct + '%';
+            } catch(e) {}
+        }
+
+        async function fetchFoodSuggest() {
+            const btn = document.getElementById('suggest-btn');
+            const area = document.getElementById('suggest-card-area');
+            const isDiet = document.getElementById('suggest-diet-toggle').checked;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="ph ph-circle-notch ph-spin" style="font-size:20px; vertical-align:middle; margin-right:6px; animation:spin 0.8s linear infinite;"></i> Öneriliyor...';
+
+            // Spin animasyonu için inline keyframe (sadece bir kez eklenir)
+            if (!document.getElementById('spin-style')) {
+                const s = document.createElement('style');
+                s.id = 'spin-style';
+                s.textContent = '@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }';
+                document.head.appendChild(s);
+            }
+
+            try {
+                const res = await fetchWithAuth(`${API_URL}/food-suggest?is_diet=${isDiet}`);
+                const data = await res.json();
+
+                if (res.ok) {
+                    const badge = data.is_diet
+                        ? `<span class="food-suggest-badge diet"><i class="ph ph-leaf"></i> Diyet</span>`
+                        : `<span class="food-suggest-badge normal"><i class="ph ph-fork-knife"></i> Normal</span>`;
+
+                    area.innerHTML = `
+                        <div class="food-suggest-card">
+                            <div style="font-size:48px; margin-bottom:16px;">🍽️</div>
+                            <div class="food-suggest-name">${data.food_name}</div>
+                            ${badge}
+                        </div>
+                    `;
+                    // Limit güncelle
+                    const usedEl = document.getElementById('suggest-used');
+                    const maxEl  = document.getElementById('suggest-limit-max');
+                    const barEl  = document.getElementById('suggest-limit-bar');
+                    if (usedEl) usedEl.textContent = data.used;
+                    if (maxEl)  maxEl.textContent  = data.limit;
+                    if (barEl)  barEl.style.width  = Math.min((data.used / data.limit) * 100, 100) + '%';
+
+                    // Limit dolunca butonu kapat
+                    if (data.used >= data.limit) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="ph ph-lock" style="font-size:20px; vertical-align:middle; margin-right:6px;"></i> Günlük limit doldu';
+                        btn.style.opacity = '0.5';
+                        btn.style.cursor = 'not-allowed';
+                        return;
+                    }
+                } else if (res.status === 429) {
+                    showMessage('suggest-msg', data.detail || 'Günlük limitinize ulaştınız.', true);
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="ph ph-lock" style="font-size:20px; vertical-align:middle; margin-right:6px;"></i> Limit doldu';
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                    return;
+                } else {
+                    showMessage('suggest-msg', data.detail || 'Bir hata oluştu.', true);
+                }
+            } catch(e) {
+                if (e.message !== 'Oturum süresi doldu') {
+                    showMessage('suggest-msg', 'Bir Hata Oluştu, Lütfen Tekrar Deneyin', true);
+                }
+            } finally {
+                if (!btn.disabled || btn.innerHTML.includes('Öneriliyor')) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="ph ph-shuffle" style="font-size:20px; vertical-align:middle; margin-right:6px;"></i> Yemek Öner!';
+                    btn.style.opacity = '';
+                    btn.style.cursor = '';
+                }
+            }
+        }
+
+        // Uygulama arka plandan veya başka tab'dan gelince limitleri yenile
+        // visibilitychange + focus PWA'da aynı anda tetiklenebilir, debounce ile önle
+        let _refreshTimer = null;
+        async function refreshUserState() {
+            if (_refreshTimer) return;
+            _refreshTimer = setTimeout(() => { _refreshTimer = null; }, 1000);
+            // iOS PWA bazen belleği temizliyor, token'ı tekrar oku
+            if (!authToken) authToken = localStorage.getItem('token');
+            if (!authToken) return;
+            try {
+                const res = await fetchWithAuth(`${API_URL}/user/me`);
+                if (res.ok) {
+                    const userData = await res.json();
+                    isPlus = userData.is_plus === true;
+                    userXp = userData.xp || 0;
+                    userLevel = userData.level || 1;
+                    userStreak = userData.streak || 0;
+                    userDailyCalorieGoal = userData.daily_calorie_goal;
+                }
+            } catch(e) {}
+            applyPlusUI();
+            updateProfileStats();
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') refreshUserState();
+        });
+
+        window.addEventListener('focus', () => {
+            refreshUserState();
+        });
+    </script>
+</body>
+</html>
