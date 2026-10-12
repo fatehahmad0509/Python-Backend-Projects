@@ -1,0 +1,6 @@
+aiogram
+python-dotenv
+reportlab
+aiohttp
+requests
+psycopg2-binary
