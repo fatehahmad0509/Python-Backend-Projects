@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --surface: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 258 89% 66%;
+    --primary-foreground: 0 0% 100%;
+    --primary-shadow: 262 74% 42%;
+
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-shadow: 221 83% 40%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+    --accent-shadow: 32 95% 40%;
+
+    --success: 160 84% 39%;
+    --success-shadow: 158 92% 24%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-shadow: 0 74% 38%;
+
+    --border: 215 25% 89%;
+    --input: 215 25% 89%;
+    --ring: 258 89% 66%;
+
+    --chart-1: 258 89% 66%;
+    --chart-2: 217 91% 60%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 160 84% 39%;
+    --chart-5: 340 82% 60%;
+
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 244 43% 7%;
+    --surface: 244 34% 13%;
+    --foreground: 210 40% 98%;
+    --card: 244 34% 13%;
+    --card-foreground: 210 40% 98%;
+    --popover: 244 34% 13%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 258 90% 76%;
+    --primary-foreground: 244 43% 7%;
+    --primary-shadow: 258 89% 55%;
+
+    --secondary: 213 94% 68%;
+    --secondary-foreground: 244 43% 7%;
+    --secondary-shadow: 217 91% 44%;
+
+    --muted: 244 30% 18%;
+    --muted-foreground: 215 20% 68%;
+
+    --accent: 43 96% 56%;
+    --accent-foreground: 244 43% 7%;
+    --accent-shadow: 32 95% 40%;
+
+    --success: 160 79% 51%;
+    --success-shadow: 160 84% 30%;
+
+    --destructive: 0 91% 71%;
+    --destructive-foreground: 244 43% 7%;
+    --destructive-shadow: 0 74% 38%;
+
+    --border: 244 30% 25%;
+    --input: 244 30% 25%;
+    --ring: 258 90% 76%;
+
+    --chart-1: 258 90% 76%;
+    --chart-2: 213 94% 68%;
+    --chart-3: 43 96% 56%;
+    --chart-4: 160 79% 51%;
+    --chart-5: 340 82% 72%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground;
+    background-image: radial-gradient(1200px 600px at 10% -10%, hsl(var(--primary) / 0.10), transparent),
+                      radial-gradient(1000px 500px at 100% 0%, hsl(var(--secondary) / 0.08), transparent);
+  }
+
+  .btn-tactile {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-2xl px-6 py-3 font-heading font-bold uppercase tracking-wide select-none;
+    @apply transition-transform duration-100 border-b-4 active:translate-y-1 active:border-b-0;
+  }
+  .btn-primary {
+    @apply btn-tactile bg-primary text-primary-foreground hover:brightness-105 disabled:opacity-50 disabled:cursor-not-allowed;
+    border-color: hsl(var(--primary-shadow));
+  }
+  .btn-secondary {
+    @apply btn-tactile bg-secondary text-secondary-foreground hover:brightness-105 disabled:opacity-50;
+    border-color: hsl(var(--secondary-shadow));
+  }
+  .btn-success {
+    @apply btn-tactile bg-success text-white;
+    border-color: hsl(var(--success-shadow));
+  }
+  .btn-danger {
+    @apply btn-tactile bg-destructive text-destructive-foreground;
+    border-color: hsl(var(--destructive-shadow));
+  }
+  .btn-outline {
+    @apply btn-tactile bg-card text-foreground border-border hover:bg-muted;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-heading font-semibold hover:bg-muted transition-colors;
+  }
+
+  .card-surface {
+    @apply bg-card border-2 border-border rounded-3xl;
+  }
+  .glass {
+    @apply backdrop-blur-xl bg-card/70 border border-border;
+  }
+}
+
+[data-debug-wrapper="true"] { display: contents !important; }
+
+.skill-node {
+  @apply w-20 h-20 rounded-full flex items-center justify-center border-b-8 cursor-pointer transition-transform active:translate-y-1 active:border-b-2 relative;
+}
+.skill-node-locked { @apply bg-muted text-muted-foreground cursor-not-allowed; border-color: hsl(var(--border) / 0.4); }
+.skill-node-available { @apply bg-primary text-primary-foreground; border-color: hsl(var(--primary-shadow)); }
+.skill-node-completed { @apply bg-success text-white; border-color: hsl(var(--success-shadow)); }
+.skill-node-current { @apply bg-primary text-primary-foreground animate-pulse-soft; border-color: hsl(var(--primary-shadow)); }
+
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.45);
+}
