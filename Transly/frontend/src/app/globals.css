@@ -1,0 +1,187 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Fraunces", serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
+
+body {
+  background-color: #090d14;
+  color: #e9eef6;
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+::selection {
+  background: rgba(255, 176, 32, 0.35);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #233047;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2e3d59;
+}
+
+/* Ambient night-sky glow: two slow-drifting light pools behind every
+   screen, amber (departure) and teal (arrival) — the same duo the
+   ticket uses, kept low and diffuse so it reads as atmosphere. */
+.ambient-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ambient-glow::before,
+.ambient-glow::after {
+  content: "";
+  position: absolute;
+  width: 38rem;
+  height: 38rem;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.14;
+  animation: blob 18s ease-in-out infinite;
+}
+
+.ambient-glow::before {
+  top: -12rem;
+  left: -10rem;
+  background: #ffb020;
+}
+
+.ambient-glow::after {
+  bottom: -14rem;
+  right: -10rem;
+  background: #2dd4bf;
+  animation-delay: -9s;
+}
+
+/* Faint radar/terminal-map grid, fading toward the edges. */
+.ambient-grid {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 72%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 72%);
+}
+
+/* Signature element: a translation "ticket" - original text and its
+   translation sit on either side of a perforated seam, like a boarding
+   pass stub crossing from one language to another. In the dark, the
+   seam doubles as a gate scanner: a beam of light sweeps across it
+   whenever a translation lands. */
+.ticket {
+  position: relative;
+  background: #121a28;
+  border-radius: 18px;
+  border: 1px solid #233047;
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset, 0 20px 40px -24px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.ticket-seam {
+  position: relative;
+  border-top: 2px dashed #233047;
+  overflow: hidden;
+}
+
+.ticket-seam::before,
+.ticket-seam::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: #090d14;
+  border: 1px solid #233047;
+  z-index: 2;
+}
+
+.ticket-seam::before {
+  left: -8px;
+}
+
+.ticket-seam::after {
+  right: -8px;
+}
+
+.scan-light {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 176, 32, 0.3),
+    rgba(45, 212, 191, 0.3),
+    transparent
+  );
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 1;
+  animation: scan 1.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@media (min-width: 768px) {
+  .ticket-seam {
+    border-top: none;
+    border-left: 2px dashed #233047;
+  }
+
+  .ticket-seam::before,
+  .ticket-seam::after {
+    top: auto;
+    left: -8px;
+  }
+
+  .ticket-seam::before {
+    top: -8px;
+  }
+
+  .ticket-seam::after {
+    bottom: -8px;
+    top: auto;
+  }
+}
+
+/* Respect reduced-motion preferences everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .ambient-glow::before,
+  .ambient-glow::after {
+    animation: none;
+  }
+}

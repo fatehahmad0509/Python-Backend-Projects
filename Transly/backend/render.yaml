@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: transly-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: APP_NAME
+        value: Transly
+      - key: DEBUG
+        value: "False"
+      - key: AUTO_CREATE_TABLES
+        value: "True"
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: transly-cache
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "30"
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "30"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.1-flash-lite
+      - key: MAX_UPLOAD_SIZE_MB
+        value: "10"
+      - key: MAX_IMAGE_DIMENSION
+        value: "6000"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "60"
+      - key: CORS_ORIGINS
+        value: '["*"]'
+
+  - type: keyvalue
+    name: transly-cache
+    plan: free
+    ipAllowList: []

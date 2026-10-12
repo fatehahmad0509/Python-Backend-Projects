@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    container_name: transly_backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: transly_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-transly}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-transly}
+      POSTGRES_DB: ${POSTGRES_DB:-transly}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: transly_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
