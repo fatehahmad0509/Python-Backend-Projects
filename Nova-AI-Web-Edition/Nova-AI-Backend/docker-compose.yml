@@ -1,0 +1,38 @@
+# NOTE: PostgreSQL is provided by Neon (managed, external) so no local
+# postgres service is defined here. Point DATABASE_URL in your .env at
+# your Neon connection string. Redis runs locally via this compose file.
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: nova-ai-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build: .
+    container_name: nova-ai-backend
+    env_file:
+      - .env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    volumes:
+      - .:/app
+
+volumes:
+  redis_data:
