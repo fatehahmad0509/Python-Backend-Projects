@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: nova-ai-web
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars: []
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

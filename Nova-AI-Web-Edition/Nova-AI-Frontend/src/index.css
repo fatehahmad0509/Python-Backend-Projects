@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- Theme tokens -------------------------------------------------- */
+/* Dark is the default (matches the original spec). .light overrides it. */
+:root {
+  --color-bg-main: 15 15 26;
+  --color-bg-card: 26 26 46;
+  --color-bg-sidebar: 22 22 42;
+  --color-bg-ai-message: 30 30 46;
+
+  --color-text-heading: 255 255 255;
+  --color-text-body: 226 232 240;
+  --color-text-secondary: 148 163 184;
+
+  --color-accent: 139 92 246;
+  --color-accent-light: 167 139 250;
+  --color-accent-dark: 124 58 237;
+
+  --color-border: 45 45 68;
+  --color-hover: 37 37 56;
+
+  --color-danger: 239 68 68;
+  --color-success: 16 185 129;
+
+  --color-code-bg: 22 22 42;
+}
+
+html.light {
+  --color-bg-main: 247 247 251;
+  --color-bg-card: 255 255 255;
+  --color-bg-sidebar: 241 240 249;
+  --color-bg-ai-message: 241 242 246;
+
+  --color-text-heading: 15 15 26;
+  --color-text-body: 51 65 85;
+  --color-text-secondary: 100 116 139;
+
+  --color-accent: 139 92 246;
+  --color-accent-light: 124 58 237;
+  --color-accent-dark: 109 40 217;
+
+  --color-border: 226 229 237;
+  --color-hover: 237 235 247;
+
+  --color-danger: 220 38 38;
+  --color-success: 5 150 105;
+
+  --color-code-bg: 30 27 46;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  background-color: rgb(var(--color-bg-main));
+  color: rgb(var(--color-text-body));
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--color-border));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--color-accent));
+}
+
+/* Visible focus indicator for accessibility (section 11) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid rgb(var(--color-accent));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.typing-dot {
+  animation: pulse 1.4s infinite;
+}
+.typing-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Markdown content inside AI messages */
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  color: rgb(var(--color-text-heading));
+  font-weight: 700;
+  margin: 0.75em 0 0.4em;
+}
+.markdown-body h1 {
+  font-size: 1.35em;
+}
+.markdown-body h2 {
+  font-size: 1.2em;
+}
+.markdown-body h3 {
+  font-size: 1.08em;
+}
+.markdown-body p {
+  margin: 0.5em 0;
+  line-height: 1.65;
+}
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0.5em 0;
+  padding-left: 1.4em;
+}
+.markdown-body li {
+  margin: 0.25em 0;
+}
+.markdown-body a {
+  color: rgb(var(--color-accent-light));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.markdown-body strong {
+  color: rgb(var(--color-text-heading));
+}
+.markdown-body code {
+  background: rgb(var(--color-hover));
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-size: 0.9em;
+  color: rgb(var(--color-text-body));
+}
+.markdown-body pre {
+  /* Code blocks stay on a fixed dark backdrop in both themes so the syntax
+     highlighter's dark color tokens stay legible (same approach GitHub/ChatGPT use). */
+  background: rgb(var(--color-code-bg)) !important;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 10px;
+  padding: 0.9em 1em !important;
+  overflow-x: auto;
+  margin: 0.6em 0;
+}
+.markdown-body pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* Streamed text — each new WORD fades in with opacity + slight upward slide +
+   a tiny blur, giving a smooth flowing appearance. Being word-based prevents
+   character jitter and feels much closer to the ChatGPT/Gemini stream. */
+.nova-word {
+  display: inline-block;
+  animation: novaWordIn 420ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  will-change: opacity, transform, filter;
+}
+@keyframes novaWordIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
